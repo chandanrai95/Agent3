@@ -1,0 +1,28 @@
+python-dotenv
+numpy
+
+fastapi
+pydantic
+pydantic[email]
+sqlalchemy # pg connection or sqlite
+uvicorn
+starlette
+psycopg2 # pg connection
+psycopg2-binary # pg connection
+asyncpg # pg connection
+motor
+
+passlib==1.7.4 #hashing
+bcrypt==4.0.1
+
+python-jose
+python-multipart
+
+langchain
+langchain-community
+langchain-openai
+langchain-mongodb
+langchain-text-splitters
+tiktoken
+pypdf
+docx2txt
