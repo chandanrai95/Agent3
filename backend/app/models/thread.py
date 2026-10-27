@@ -37,6 +37,8 @@ class SourceRef(BaseModel):
     pages: list[int] = []
     section: Optional[str] = None
     content_type: Optional[str] = None
+    # citation number used in the answer, e.g. 2 for [2]
+    ref: Optional[int] = None
 
 
 class MessageResponse(MongoBaseModel):

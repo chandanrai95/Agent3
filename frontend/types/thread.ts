@@ -16,6 +16,8 @@ interface SourceRef {
   pages?: number[]
   section?: string | null
   content_type?: string | null
+  // citation number in the answer ([2] -> 2), older messages don't have it
+  ref?: number
 }
 
 interface ChatMessage {

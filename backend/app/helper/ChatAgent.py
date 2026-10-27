@@ -4,7 +4,7 @@ from typing import Optional
 from bson import ObjectId
 
 import app.config.database as database
-from app.helper.RagPipeline import RagPipeline
+from app.helper.RagPipeline import RagPipeline, cited_sources
 
 
 class ChatAgent:
@@ -19,7 +19,7 @@ class ChatAgent:
     def format_sources(sources: list[dict]) -> str:
         if not sources:
             return ""
-        return "\n\nSources:\n" + "".join(f"[{i + 1}] {s['source_name']}\n" for i, s in enumerate(sources))
+        return "\n\nSources:\n" + "".join(f"[{s.get('ref', i + 1)}] {s['source_name']}\n" for i, s in enumerate(sources))
 
     async def stream_chat(self, question: str, source_id: Optional[str] = None,
                           user_id: Optional[str] = None, thread_id: Optional[str] = None):
@@ -44,7 +44,7 @@ class ChatAgent:
         finally:
             self.rag.finish_usage([context, question, answer])
 
-        sources_text = self.format_sources(sources)
+        sources_text = self.format_sources(cited_sources(answer, sources))
         yield sources_text
 
         await self.db.agent_history.insert_one({

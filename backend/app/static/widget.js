@@ -32,15 +32,15 @@
     });
   }
 
-  // small, safe markdown: escape first, then bold, inline code, links, lists, tables and line breaks
+  // small, safe markdown: escape first, then bold, inline code, links, lists, tables and line breaks.
+  // Citation markers like [1] are dropped, visitors don't see the source documents.
   function markdown(text) {
-    var lines = escapeHtml(text).split('\n');
+    var lines = escapeHtml(text.replace(/\s*\[\d{1,2}\](?!\()/g, '')).split('\n');
     var html = '', inList = false, table = [];
     function inline(s) {
       return s
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/\[(\d{1,2})\](?!\()/g, '<sup>$1</sup>')
         .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
     }
     function flushTable() {
@@ -94,11 +94,11 @@
       '.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f8fafc}' +
       '.msg{max-width:85%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.5;word-wrap:break-word}' +
       '.msg p{margin:0 0 6px}.msg p:last-child{margin:0}.msg ul{margin:4px 0;padding-left:18px}.msg code{background:#eef2ff;padding:1px 4px;border-radius:4px;font-size:12px}' +
-      '.msg sup{font-size:10px;color:' + accent + ';font-weight:600;margin:0 1px}.msg a{color:' + accent + '}' +
+      '.msg a{color:' + accent + '}' +
       '.tbl{overflow-x:auto;margin:6px 0}.tbl table{border-collapse:collapse;font-size:12.5px}.tbl th,.tbl td{border:1px solid #e2e8f0;padding:4px 6px;text-align:left}.tbl th{background:#f1f5f9}' +
       '.user{align-self:flex-end;background:' + accent + ';color:#fff;border-bottom-right-radius:4px}' +
       '.bot{align-self:flex-start;background:#fff;border:1px solid #e2e8f0;border-bottom-left-radius:4px}' +
-      '.src{margin-top:6px;font-size:11.5px;color:#64748b}.err{color:#b91c1c}' +
+      '.err{color:#b91c1c}' +
       '.dots span{display:inline-block;width:6px;height:6px;margin-right:3px;border-radius:50%;background:#94a3b8;animation:b 1s infinite}.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}' +
       '@keyframes b{0%,80%,100%{opacity:.3}40%{opacity:1}}' +
       'form{display:flex;gap:8px;padding:10px;border-top:1px solid #e2e8f0;background:#fff}' +
@@ -132,12 +132,6 @@
       msgs.scrollTop = msgs.scrollHeight;
       return el;
     }
-    function sourcesHtml(sources) {
-      if (!sources || !sources.length) return '';
-      return '<div class="src">Sources: ' + sources.map(function (s, i) {
-        return '[' + (i + 1) + '] ' + escapeHtml(s.source_name) + (s.pages && s.pages.length ? ' p.' + s.pages.join(', ') : '');
-      }).join(' · ') + '</div>';
-    }
     function greet() {
       msgs.innerHTML = '';
       if (config.greeting) add('bot', markdown(config.greeting));
@@ -150,7 +144,7 @@
         .then(function (r) { return r.ok ? r.json() : []; })
         .then(function (list) {
           list.forEach(function (m) {
-            add(m.role, m.role === 'user' ? escapeHtml(m.content) : markdown(m.content) + sourcesHtml(m.sources));
+            add(m.role, m.role === 'user' ? escapeHtml(m.content) : markdown(m.content));
           });
         })
         .catch(function () {});
@@ -161,7 +155,7 @@
       sendBtn.disabled = true;
       add('user', escapeHtml(text));
       var bot = add('bot', '<span class="dots"><span></span><span></span><span></span></span>');
-      var answer = '', sources = [];
+      var answer = '';
 
       fetch(API + '/widget/' + KEY + '/messages', {
         method: 'POST',
@@ -186,7 +180,6 @@
               var ev = JSON.parse(line.slice(6));
               if (ev.type === 'thread') { state.threadId = ev.thread_id; save(state); }
               else if (ev.type === 'token') { answer += ev.content; bot.innerHTML = markdown(answer); }
-              else if (ev.type === 'sources') { sources = ev.sources; }
               else if (ev.type === 'error') { throw new Error(ev.detail); }
             });
             msgs.scrollTop = msgs.scrollHeight;
@@ -195,7 +188,7 @@
         }
         return pump();
       }).then(function () {
-        bot.innerHTML = markdown(answer || '…') + sourcesHtml(sources);
+        bot.innerHTML = markdown(answer || '…');
       }).catch(function (err) {
         bot.innerHTML = (answer ? markdown(answer) : '') + '<p class="err">' + escapeHtml(err.message) + '</p>';
       }).then(function () {

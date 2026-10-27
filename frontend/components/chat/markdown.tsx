@@ -18,7 +18,7 @@ const Markdown = ({ content, sources }: Props) => (
         a: ({ href, children }) => {
           if (href?.startsWith('#cite-')) {
             const n = Number(href.slice(6))
-            const source = sources[n - 1]
+            const source = sources.find((s) => s.ref === n) ?? (sources.some((s) => s.ref) ? undefined : sources[n - 1])
             return (
               <sup
                 title={source ? `${source.source_name}${source.pages?.length ? ` • p. ${source.pages.join(', ')}` : ''}` : undefined}

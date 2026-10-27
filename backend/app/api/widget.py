@@ -70,9 +70,7 @@ async def widget_history(public_key: str, thread_id: str, visitor_id: str, reque
     if not thread:
         return []
     cursor = db.messages.find({"thread_id": thread["_id"]}).sort("created_at", 1).limit(100)
-    return [{"role": m["role"], "content": m["content"], "sources": [
-        {"source_name": s.get("source_name"), "pages": s.get("pages") or []} for s in m.get("sources", [])
-    ]} async for m in cursor]
+    return [{"role": m["role"], "content": m["content"]} async for m in cursor]
 
 
 @public_router.post('/widget/{public_key}/messages')
@@ -109,8 +107,8 @@ async def widget_message(public_key: str, payload: widget_schema.WidgetMessageRe
                     # visitors only need what is shown, not internal ids or scores
                     event = {"type": "done", "thread_id": thread_id, "answer": event["answer"]}
                 elif event["type"] == "sources":
-                    event = {"type": "sources", "sources": [
-                        {"source_name": s["source_name"], "pages": s.get("pages") or []} for s in event["sources"]]}
+                    # website visitors only see the answer, sources stay in the dashboard
+                    continue
                 yield _sse(event)
         except Exception as e:
             print(f"widget chat failed: {e}")

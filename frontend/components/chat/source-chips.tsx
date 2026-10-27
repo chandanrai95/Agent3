@@ -13,7 +13,7 @@ const SourceChips = ({ sources }: { sources: SourceRef[] }) => (
             type="button"
             className="flex items-center gap-1.5 max-w-[320px] px-3 py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-primary text-label-sm shadow-sm transition-colors"
           >
-            <span className="font-mono text-[10px] font-semibold">{i + 1}</span>
+            <span className="font-mono text-[10px] font-semibold">{s.ref ?? i + 1}</span>
             <Icon name={icon.icon} className={`text-[14px] ${icon.color}`} />
             <span className="truncate">{s.source_name}</span>
             {!!s.pages?.length && <span className="text-outline shrink-0">p. {s.pages.join(', ')}</span>}
