@@ -9,6 +9,7 @@ import { createThread, getLatestThread, getThreadMessages, streamThreadMessage }
 import { errorMessage } from "@/lib/api/errors"
 import { dayLabel } from "@/lib/utils/format"
 import useAppStore from "@/store/useAppStore"
+import useUploadStore from "@/store/useUploadStore"
 import { useAuthStore } from "@/store/useAuthStore"
 import AgentBar from "@/components/chat/agent-bar"
 import Composer from "@/components/chat/composer"
@@ -25,6 +26,7 @@ const AgentPage = () => {
   const { user } = useAuthStore()
   const { openModal, documents: allDocuments, documentsLoading, refreshDocuments } = useAppStore()
   const documents = allDocuments[id] || EMPTY_DOCS
+  const enqueueUploads = useUploadStore((s) => s.enqueue)
 
   const [agent, setAgent] = React.useState<Agent | null>(null);
   const [loadError, setLoadError] = React.useState<string | null>(null)
@@ -161,7 +163,11 @@ const AgentPage = () => {
     setMessages([])
   }
 
-  const openUpload = (files?: File[]) => openModal({ type: 'documents', agentId: id, files })
+  // uploads start right away, the sources panel shows their progress
+  const uploadFiles = (files: File[]) => {
+    enqueueUploads(id, files)
+    setDrawerOpen(true)
+  }
 
   if (loadError) {
     return (
@@ -193,7 +199,6 @@ const AgentPage = () => {
           onModelChange={onModelChange}
           savingModel={savingModel}
           onEditRole={() => openModal({ type: 'edit-role', agent })}
-          onUpload={() => openUpload()}
           onNewChat={onNewChat}
           canStartNewChat={messages.length > 0}
           drawerOpen={drawerOpen}
@@ -223,12 +228,10 @@ const AgentPage = () => {
                     Answers come only from your {documents.length} indexed document{documents.length > 1 ? 's' : ''}, with citations you can check.
                   </p>
                 ) : (
-                  <>
-                    <p className="text-body-md text-on-surface-variant max-w-md">This agent has no documents yet, so it can&apos;t answer questions. Upload some to get started.</p>
-                    <button type="button" className={btnPrimary} onClick={() => openUpload()}>
-                      <Icon name="upload_file" className="text-[18px]" />Upload documents
-                    </button>
-                  </>
+                  <p className="text-body-md text-on-surface-variant max-w-md">
+                    This agent has no documents yet. Add some with the <Icon name="attach_file" className="text-[16px] align-[-3px] text-primary" /> in the message box
+                    or drop them into the <span className="text-on-surface">Knowledge Sources</span> panel.
+                  </p>
                 )}
               </div>
             )}
@@ -256,12 +259,10 @@ const AgentPage = () => {
         <Composer
           agentName={agent.name}
           streaming={streaming}
-          documentsCount={documents.length}
           scopeLabel={scopeDoc ? scopeDoc.source_name : `All sources (${documents.length} document${documents.length === 1 ? '' : 's'})`}
           onSend={send}
           onStop={() => abortRef.current?.abort()}
-          onAttach={() => openUpload()}
-          onShowSources={() => setDrawerOpen(true)}
+          onFiles={uploadFiles}
         />
       </div>
 
@@ -273,7 +274,6 @@ const AgentPage = () => {
             documents={documents}
             loading={!!documentsLoading[id]}
             onClose={() => setDrawerOpen(false)}
-            onAdd={openUpload}
             onDeleted={(sourceId) => {
               refreshDocuments(id)
               if (scope === sourceId) setScope('')

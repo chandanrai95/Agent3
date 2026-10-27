@@ -1,21 +1,21 @@
 'use client'
 import React from "react"
+import { ACCEPTED_FILES } from "@/lib/utils/format"
 import Icon from "../ui/icon"
 
 type Props = {
   agentName: string
   streaming: boolean
-  documentsCount: number
   scopeLabel: string
   onSend: (text: string) => void
   onStop: () => void
-  onAttach: () => void
-  onShowSources: () => void
+  onFiles: (files: File[]) => void
 }
 
-const Composer = ({ agentName, streaming, documentsCount, scopeLabel, onSend, onStop, onAttach, onShowSources }: Props) => {
+const Composer = ({ agentName, streaming, scopeLabel, onSend, onStop, onFiles }: Props) => {
   const [text, setText] = React.useState('')
   const ref = React.useRef<HTMLTextAreaElement>(null)
+  const fileRef = React.useRef<HTMLInputElement>(null)
 
   // grow with the content up to max-h
   React.useEffect(() => {
@@ -50,13 +50,20 @@ const Composer = ({ agentName, streaming, documentsCount, scopeLabel, onSend, on
           />
           <div className="flex items-center justify-between pt-2 gap-2 flex-wrap">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <button type="button" title="Upload documents" aria-label="Upload documents" onClick={onAttach} className="p-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors flex">
+              <button type="button" title="Upload documents" aria-label="Upload documents" onClick={() => fileRef.current?.click()} className="p-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors flex">
                 <Icon name="attach_file" className="text-[16px]" />
               </button>
-              <button type="button" onClick={onShowSources} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-label-sm transition-colors">
-                <Icon name="folder_open" className="text-[16px] text-rag-indexed" />
-                {documentsCount} doc{documentsCount === 1 ? '' : 's'} indexed
-              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                multiple
+                accept={ACCEPTED_FILES}
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.length) onFiles(Array.from(e.target.files))
+                  e.target.value = ''
+                }}
+              />
             </div>
             {streaming ? (
               <button type="button" onClick={onStop} className="flex items-center gap-1.5 px-3 h-9 rounded-full bg-surface-container-highest text-on-surface hover:bg-surface-bright text-label-md transition-colors">

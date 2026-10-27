@@ -5,7 +5,6 @@ export type AgentTemplate = { name: string, model: string, role: string }
 
 type Modal =
   | { type: 'add-agent', template?: AgentTemplate }
-  | { type: 'documents', agentId: string, files?: File[] }
   | { type: 'edit-role', agent: Agent }
   | null
 

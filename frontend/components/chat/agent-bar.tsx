@@ -11,7 +11,6 @@ type Props = {
   onModelChange: (model: string) => void
   savingModel: boolean
   onEditRole: () => void
-  onUpload: () => void
   onNewChat: () => void
   canStartNewChat: boolean
   drawerOpen: boolean
@@ -20,7 +19,7 @@ type Props = {
 
 const AgentBar = ({
   agent, documents, scope, onScopeChange, onModelChange, savingModel,
-  onEditRole, onUpload, onNewChat, canStartNewChat, drawerOpen, onToggleDrawer,
+  onEditRole, onNewChat, canStartNewChat, drawerOpen, onToggleDrawer,
 }: Props) => (
   <section className="sticky top-0 z-30 w-full bg-surface-container-low/95 backdrop-blur-md px-4 sm:px-6 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2 shadow-sm">
       <div className="flex items-center gap-2.5 min-w-0 flex-1 md:flex-none">
@@ -57,16 +56,13 @@ const AgentBar = ({
       </div>
 
     <div className="flex items-center gap-1.5 ml-auto">
-      <button type="button" onClick={onUpload} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-label-md transition-colors shadow-sm">
-        <Icon name="upload_file" className="text-[16px] text-primary" />
-        <span className="hidden 2xl:inline">Upload docs</span>
-        <span className="px-1.5 rounded-full bg-surface-container-highest text-label-sm text-on-surface-variant">{documents.length}</span>
-      </button>
       <button type="button" title="New chat" aria-label="New chat" onClick={onNewChat} disabled={!canStartNewChat} className="p-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors shadow-sm flex disabled:opacity-40">
         <Icon name="add_comment" className="text-[18px]" />
       </button>
-      <button type="button" title={drawerOpen ? 'Hide sources' : 'Show sources'} aria-label="Toggle sources panel" onClick={onToggleDrawer} className={`p-1.5 rounded-lg shadow-sm flex transition-colors ${drawerOpen ? 'bg-primary-container/20 text-primary' : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest'}`}>
-        <Icon name="right_panel_open" className="text-[18px]" />
+      <button type="button" title={drawerOpen ? 'Hide knowledge sources' : 'Show knowledge sources'} aria-label="Toggle knowledge sources panel" onClick={onToggleDrawer} className={`flex items-center gap-1.5 pl-2 pr-2.5 py-1.5 rounded-lg shadow-sm text-label-md transition-colors ${drawerOpen ? 'bg-primary-container/20 text-primary' : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest'}`}>
+        <Icon name="menu_book" className="text-[18px]" />
+        <span className="hidden sm:inline">Sources</span>
+        <span className="px-1.5 rounded-full bg-surface-container-highest text-label-sm text-on-surface-variant">{documents.length}</span>
       </button>
     </div>
   </section>
