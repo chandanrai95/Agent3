@@ -60,21 +60,6 @@ class ChatAgent:
         Do not make up information.
         """
 
-        # messages = [
-        #     SystemMessage(content=SYSTEM_PROMPT),
-        #     *(self.history or []),
-        #     # SystemMessage(content=f"Relevant document context:\n{context}"),
-        #     HumanMessage(
-        #         content=f"""
-        #             Context:
-        #             {context}
-        #
-        #             Question:
-        #             {question}
-        #         """
-        #     )
-        # ]
-
         messages = [
             SystemMessage(content=SYSTEM_PROMPT),
             *(self.history or []),
