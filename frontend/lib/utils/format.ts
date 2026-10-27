@@ -1,3 +1,5 @@
+import type { IconName } from "@/components/ui/icon-names"
+
 export const formatBytes = (bytes?: number | null) => {
   if (!bytes) return null
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`
@@ -23,7 +25,7 @@ export const dayLabel = (date: string | Date) => {
   return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(d)
 }
 
-export const fileIcon = (name: string) => {
+export const fileIcon = (name: string): { icon: IconName, color: string, label: string } => {
   const ext = name.split('.').pop()?.toLowerCase()
   if (ext === 'pdf') return { icon: 'picture_as_pdf', color: 'text-error', label: 'PDF' }
   if (ext === 'docx') return { icon: 'description', color: 'text-secondary', label: 'DOC' }

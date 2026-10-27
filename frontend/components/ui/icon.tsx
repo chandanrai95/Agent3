@@ -1,5 +1,7 @@
+import type { IconName } from "./icon-names"
+
 type Props = {
-  name: string
+  name: IconName
   className?: string
   filled?: boolean
 }

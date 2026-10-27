@@ -4,10 +4,12 @@ import "./globals.css";
 import BaseLayout from "@/components/base_layout";
 import { ToastContainer } from "react-toastify";
 import { verifyTokenApi } from "@/lib/api/server_auth";
+import { ICON_FONT_URL } from "@/components/ui/icon-names";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -34,16 +36,16 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className="dark">
+    // font variables live on <html> so the Tailwind theme (declared on :root) can read them
+    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+          href={ICON_FONT_URL}
           rel="stylesheet"
         />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+        className="antialiased"
       >
         <BaseLayout
           user={user}

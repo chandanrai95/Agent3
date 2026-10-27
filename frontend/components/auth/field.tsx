@@ -1,10 +1,11 @@
 import React from "react"
 import Icon from "../ui/icon"
+import type { IconName } from "../ui/icon-names"
 import { inputBase, inputError } from "../ui/styles"
 
 type Props = React.InputHTMLAttributes<HTMLInputElement> & {
   label: string
-  icon: string
+  icon: IconName
   hint?: React.ReactNode
   error?: string | null
   trailing?: React.ReactNode

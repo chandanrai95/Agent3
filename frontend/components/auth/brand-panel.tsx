@@ -1,14 +1,15 @@
 import Icon from "../ui/icon"
 import Logo from "../ui/logo"
+import type { IconName } from "../ui/icon-names"
 
-const features = [
+const features: { icon: IconName, color: string, label: string }[] = [
   { icon: 'format_quote', color: 'text-rag-indexed', label: 'Answers cite their sources' },
   { icon: 'table_chart', color: 'text-primary', label: 'Reads tables, images & scans' },
   { icon: 'api', color: 'text-tertiary', label: 'Embed agents via API keys' },
 ]
 
 const BrandPanel = () => (
-  <div className="relative flex-1 bg-surface-container-lowest flex flex-col justify-between gap-8 p-8 lg:p-14 overflow-hidden border-b lg:border-b-0 lg:border-r border-border-dark lg:min-h-screen">
+  <div className="relative hidden lg:flex flex-1 bg-surface-container-lowest flex-col justify-between gap-8 p-14 overflow-hidden border-r border-border-dark min-h-screen">
     <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary-container/20 rounded-full blur-3xl pointer-events-none" />
     <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-tertiary-container/15 rounded-full blur-3xl pointer-events-none" />
     <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a15_1px,transparent_1px),linear-gradient(to_bottom,#27272a15_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
@@ -23,7 +24,7 @@ const BrandPanel = () => (
           <span className="h-2 w-2 rounded-full bg-rag-indexed animate-pulse" />
           Retrieval-augmented answers you can verify
         </div>
-        <h2 className="text-[30px] leading-[38px] lg:text-display font-semibold tracking-tight text-on-surface">
+        <h2 className="text-display font-semibold tracking-tight text-on-surface">
           Build AI agents that know your documents
         </h2>
         <p className="text-body-lg text-on-surface-variant">
@@ -31,7 +32,7 @@ const BrandPanel = () => (
         </p>
       </div>
 
-      <div className="hidden sm:block rounded-xl bg-surface-container-low/90 backdrop-blur-md border border-border-dark p-5 shadow-2xl space-y-3">
+      <div className="rounded-xl bg-surface-container-low/90 backdrop-blur-md border border-border-dark p-5 shadow-2xl space-y-3">
         <div className="flex items-center justify-between border-b border-border-dark/60 pb-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md bg-primary-container/20 flex items-center justify-center text-primary">

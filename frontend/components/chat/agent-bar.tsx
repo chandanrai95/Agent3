@@ -22,9 +22,8 @@ const AgentBar = ({
   agent, documents, scope, onScopeChange, onModelChange, savingModel,
   onEditRole, onUpload, onNewChat, canStartNewChat, drawerOpen, onToggleDrawer,
 }: Props) => (
-  <section className="sticky top-0 z-30 w-full bg-surface-container-low/95 backdrop-blur-md px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
-    <div className="flex items-center gap-4 flex-wrap min-w-0">
-      <div className="flex items-center gap-2.5 min-w-0">
+  <section className="sticky top-0 z-30 w-full bg-surface-container-low/95 backdrop-blur-md px-4 sm:px-6 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2 shadow-sm">
+      <div className="flex items-center gap-2.5 min-w-0 flex-1 md:flex-none">
         <div className="w-9 h-9 shrink-0 rounded-xl bg-primary-container/20 flex items-center justify-center text-primary">
           <Icon name="smart_toy" filled className="text-[20px]" />
         </div>
@@ -37,7 +36,7 @@ const AgentBar = ({
             </span>
           </div>
           <div className="group relative flex items-center gap-1">
-            <button type="button" onClick={onEditRole} className="text-label-sm text-outline hover:text-on-surface truncate max-w-[200px] 2xl:max-w-[320px] text-left transition-colors">
+            <button type="button" onClick={onEditRole} className="text-label-sm text-outline hover:text-on-surface truncate max-w-[160px] sm:max-w-[200px] 2xl:max-w-[320px] text-left transition-colors">
               Role: {agent.role}
             </button>
             <Icon name="edit" className="text-[13px] text-outline" />
@@ -52,13 +51,12 @@ const AgentBar = ({
 
       <div className="hidden md:block h-6 w-px bg-surface-container-highest" />
 
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="order-last md:order-none w-full md:w-auto flex items-center gap-2 flex-wrap">
         <ModelSelect variant="pill" value={agent.model} onChange={onModelChange} loading={savingModel} />
         <ScopeSelect value={scope} onChange={onScopeChange} documents={documents} />
       </div>
-    </div>
 
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5 ml-auto">
       <button type="button" onClick={onUpload} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-label-md transition-colors shadow-sm">
         <Icon name="upload_file" className="text-[16px] text-primary" />
         <span className="hidden 2xl:inline">Upload docs</span>

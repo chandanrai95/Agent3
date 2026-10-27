@@ -202,7 +202,15 @@ const AgentPage = () => {
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
           <div className="w-full max-w-4xl mx-auto px-4 sm:px-8 py-6 flex flex-col gap-8">
-            {historyLoading && <div className="flex justify-center py-10 text-outline"><Spinner className="w-5 h-5" /></div>}
+            {historyLoading && (
+              <div className="flex flex-col gap-8" aria-label="Loading conversation">
+                <div className="self-end w-1/2 h-12 rounded-2xl rounded-tr-none shimmer-bar" />
+                <div className="flex gap-3">
+                  <div className="w-9 h-9 rounded-xl shimmer-bar" />
+                  <div className="flex-1 h-32 rounded-2xl rounded-tl-none shimmer-bar" />
+                </div>
+              </div>
+            )}
 
             {!historyLoading && messages.length === 0 && (
               <div className="flex flex-col items-center text-center gap-3 py-16">

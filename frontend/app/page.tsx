@@ -6,10 +6,11 @@ import { getModel } from "@/lib/utils/model";
 import { ROLE_TEMPLATES } from "@/components/modals/role-templates";
 import Icon from "@/components/ui/icon";
 import Spinner from "@/components/ui/spinner";
+import type { IconName } from "@/components/ui/icon-names";
 
 const STEPS = ['Pick a model', 'Give it a role', 'Upload documents', 'Start chatting']
 
-const STARTERS = [
+const STARTERS: (typeof ROLE_TEMPLATES[number] & { name: string, model: string, category: string, tags: [IconName, string][] })[] = [
   { ...ROLE_TEMPLATES[1], name: 'Legal Contract Reviewer', model: 'gpt-4.1', category: 'Legal', tags: [['description', 'PDF & DOCX'], ['format_quote', 'Clause citations']] },
   { ...ROLE_TEMPLATES[0], name: 'HR Policy Assistant', model: 'gpt-4.1-mini', category: 'People ops', tags: [['badge', 'Policies'], ['help', 'Employee FAQs']] },
   { ...ROLE_TEMPLATES[2], name: 'Customer Support Bot', model: 'gpt-4o-mini', category: 'Support', tags: [['menu_book', 'Product docs'], ['image', 'Screenshots']] },

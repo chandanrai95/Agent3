@@ -93,8 +93,9 @@ const Sidebar = () => {
                   href={`/agent/${agent._id}`}
                   onClick={() => setSidebarOpen(false)}
                   aria-current={active ? 'page' : undefined}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${active ? 'bg-surface-container-high text-on-surface' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'}`}
+                  className={`relative flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${active ? 'bg-surface-container-high text-on-surface' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'}`}
                 >
+                  {active && <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-primary" />}
                   <div className={`w-7 h-7 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-label-md font-bold ${TILE_COLORS[i % TILE_COLORS.length]}`}>
                     {initials(agent.name).slice(0, 1)}
                   </div>

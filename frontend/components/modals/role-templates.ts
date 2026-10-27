@@ -1,4 +1,6 @@
-export const ROLE_TEMPLATES = [
+import type { IconName } from "../ui/icon-names"
+
+export const ROLE_TEMPLATES: { label: string, icon: IconName, color: string, role: string }[] = [
   {
     label: 'HR policy assistant',
     icon: 'badge',

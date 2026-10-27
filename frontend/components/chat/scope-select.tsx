@@ -37,7 +37,7 @@ const ScopeSelect = ({ value, onChange, documents }: Props) => {
       {open && (
         <ul role="listbox" className="absolute z-50 left-0 top-full mt-1 w-72 max-h-80 overflow-y-auto flex flex-col gap-1 p-1 rounded-xl bg-surface-container-low border border-surface-container-highest shadow-xl">
           {[{ _id: '', source_name: 'All sources' } as Source, ...documents].map((d) => {
-            const icon = d._id ? fileIcon(d.source_name) : { icon: 'select_all', color: 'text-rag-indexed' }
+            const icon = d._id ? fileIcon(d.source_name) : { icon: 'select_all' as const, color: 'text-rag-indexed' }
             return (
               <li
                 key={d._id || 'all'}

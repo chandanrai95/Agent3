@@ -1,13 +1,14 @@
 'use client'
 import React from "react"
 import Icon from "./icon"
+import type { IconName } from "./icon-names"
 import { btnGhostIcon } from "./styles"
 
 type Props = {
   title: string
   subtitle?: React.ReactNode
   eyebrow?: string
-  icon?: string
+  icon?: IconName
   onClose: () => void
   children: React.ReactNode
   footer?: React.ReactNode
