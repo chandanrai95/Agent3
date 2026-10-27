@@ -16,8 +16,13 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ id: s
 
   const init: RequestInit & { duplex?: 'half' } = { method: request.method, headers, signal: request.signal }
   if (!['GET', 'HEAD'].includes(request.method)) {
-    init.body = request.body
-    init.duplex = 'half'
+    if (contentType?.startsWith('multipart/form-data')) {
+      // stream file uploads instead of holding them in memory
+      init.body = request.body
+      init.duplex = 'half'
+    } else {
+      init.body = await request.text()
+    }
   }
 
   try {

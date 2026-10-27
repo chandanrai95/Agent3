@@ -1,11 +1,11 @@
 'use client'
 import React from "react"
 import Link from "next/link"
+import AgentNavItem from "./agent-nav-item"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "react-toastify"
 import useAppStore from "@/store/useAppStore"
 import { useAuthStore } from "@/store/useAuthStore"
-import { getModel } from "@/lib/utils/model"
 import { initials } from "@/lib/utils/format"
 import Icon from "../ui/icon"
 import Logo from "../ui/logo"
@@ -71,7 +71,7 @@ const Sidebar = () => {
             <span className="text-label-sm uppercase tracking-wider text-outline">Your agents</span>
           </div>
 
-          <nav className="flex flex-col px-2 gap-1 overflow-y-auto pb-2">
+          <nav className="flex flex-col px-2 gap-1 overflow-y-auto pb-2 min-h-0">
             {!agentsLoaded && (
               <div className="flex justify-center py-6 text-outline"><Spinner /></div>
             )}
@@ -84,28 +84,9 @@ const Sidebar = () => {
                 <span className="text-label-sm text-outline">Created agents will appear here</span>
               </div>
             )}
-            {agents.map((agent, i) => {
-              const active = agent._id === id
-              const model = getModel(agent.model)
-              return (
-                <Link
-                  key={agent._id}
-                  href={`/agent/${agent._id}`}
-                  onClick={() => setSidebarOpen(false)}
-                  aria-current={active ? 'page' : undefined}
-                  className={`relative flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${active ? 'bg-surface-container-high text-on-surface' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'}`}
-                >
-                  {active && <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-primary" />}
-                  <div className={`w-7 h-7 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-label-md font-bold ${TILE_COLORS[i % TILE_COLORS.length]}`}>
-                    {initials(agent.name).slice(0, 1)}
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="truncate text-label-md">{agent.name}</span>
-                    <span className={`text-label-sm ${active ? model.color : 'text-outline'}`}>{agent.model}</span>
-                  </div>
-                </Link>
-              )
-            })}
+            {agents.map((agent, i) => (
+              <AgentNavItem key={agent._id} agent={agent} active={agent._id === id} tileColor={TILE_COLORS[i % TILE_COLORS.length]} />
+            ))}
           </nav>
         </div>
 

@@ -1,8 +1,18 @@
 import axios from "axios";
 
-export const getLatestThread = async (agentId: string): Promise<Thread | null> => {
-  const { data } = await axios.get(`/api/agents/${agentId}/threads`, { params: { limit: 1 } })
-  return data?.[0] || null
+export const getThreads = async (agentId: string, limit = 100): Promise<Thread[]> => {
+  const { data } = await axios.get(`/api/agents/${agentId}/threads`, { params: { limit } })
+  return Array.isArray(data) ? data : []
+}
+
+export const renameThread = async (agentId: string, threadId: string, title: string): Promise<Thread> => {
+  const { data } = await axios.patch(`/api/agents/${agentId}/threads/${threadId}`, { title })
+  return data
+}
+
+export const deleteThread = async (agentId: string, threadId: string) => {
+  const { data } = await axios.delete(`/api/agents/${agentId}/threads/${threadId}`)
+  return data
 }
 
 export const createThread = async (agentId: string, title?: string): Promise<Thread> => {

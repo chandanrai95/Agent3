@@ -1,11 +1,12 @@
 import { create } from "zustand";
 import { getAgentDocuments } from "@/lib/api/documents";
+import { getThreads } from "@/lib/api/threads";
 
 export type AgentTemplate = { name: string, model: string, role: string }
 
 type Modal =
   | { type: 'add-agent', template?: AgentTemplate }
-  | { type: 'edit-role', agent: Agent }
+  | { type: 'edit-agent', agent: Agent }
   | null
 
 interface AppStore {
@@ -21,6 +22,11 @@ interface AppStore {
   documents: Record<string, Source[]>,
   documentsLoading: Record<string, boolean>,
   refreshDocuments: (agentId: string) => Promise<void>
+
+  // conversations per agent, listed under each agent in the sidebar
+  threads: Record<string, Thread[]>,
+  threadsLoading: Record<string, boolean>,
+  refreshThreads: (agentId: string) => Promise<void>
 
   sidebarOpen: boolean,
   setSidebarOpen: (open: boolean) => void
@@ -51,6 +57,20 @@ export const useAppStore = create<AppStore>((set) => ({
       console.error('refreshDocuments', err)
     } finally {
       set((s) => ({ documentsLoading: { ...s.documentsLoading, [agentId]: false } }))
+    }
+  },
+
+  threads: {},
+  threadsLoading: {},
+  refreshThreads: async (agentId) => {
+    set((s) => ({ threadsLoading: { ...s.threadsLoading, [agentId]: true } }))
+    try {
+      const threads = await getThreads(agentId)
+      set((s) => ({ threads: { ...s.threads, [agentId]: threads } }))
+    } catch (err) {
+      console.error('refreshThreads', err)
+    } finally {
+      set((s) => ({ threadsLoading: { ...s.threadsLoading, [agentId]: false } }))
     }
   },
 

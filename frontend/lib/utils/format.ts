@@ -35,3 +35,12 @@ export const fileIcon = (name: string): { icon: IconName, color: string, label: 
 }
 
 export const ACCEPTED_FILES = '.pdf,.docx,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp,.gif'
+
+export const timeAgo = (date: string | Date) => {
+  const seconds = Math.max(0, (Date.now() - parseDate(date).getTime()) / 1000)
+  if (seconds < 60) return 'now'
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`
+  if (seconds < 86400 * 7) return `${Math.floor(seconds / 86400)}d`
+  return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short' }).format(parseDate(date))
+}
