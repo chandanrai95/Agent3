@@ -41,7 +41,7 @@ curl -X POST ${PUBLIC_API_URL}/v1/threads/THREAD_ID/messages -H "X-API-Key: ${ap
             {agent ? <span className="text-on-surface-variant font-normal">· {agent.name}</span> : <Spinner className="w-4 h-4 text-outline" />}
           </h1>
           <p className="text-body-md text-on-surface-variant">
-            Use this agent outside Agent3: in chatbot builders and automation tools, in your own backend, or as a chat bubble on your website.
+            Use this agent outside Agent Builder: in chatbot builders and automation tools, in your own backend, or as a chat bubble on your website.
             Usage counts against your account and your OpenAI key when set.
           </p>
         </div>

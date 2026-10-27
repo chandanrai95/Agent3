@@ -8,7 +8,7 @@ const Logo = ({ badge }: { badge?: string }) => (
         <span className="h-1.5 w-1.5 rounded-full bg-rag-indexed" />
       </span>
     </div>
-    <span className="text-headline-sm font-semibold tracking-tight text-on-surface">Agent3</span>
+    <span className="text-headline-sm font-semibold tracking-tight text-on-surface whitespace-nowrap">Agent Builder</span>
     {badge && (
       <span className="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-label-sm">{badge}</span>
     )}

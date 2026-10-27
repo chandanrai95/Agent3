@@ -40,7 +40,7 @@ def _text(content) -> str:
 async def list_models(agent=Depends(get_api_agent)):
     return {"object": "list", "data": [{
         "id": _model_id(agent), "object": "model", "created": int(agent["created_at"].timestamp()),
-        "owned_by": "agent3", "name": agent["name"],
+        "owned_by": "agent-builder", "name": agent["name"],
     }]}
 
 

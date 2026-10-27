@@ -1,5 +1,5 @@
 /*
- * Agent3 chat widget.
+ * Agent Builder chat widget.
  *   <script src="https://YOUR-API/widget.js" data-agent-key="pk_..." async></script>
  * Optional: data-position="left", data-open="true".
  * Renders in a shadow root so the host page's CSS can't affect it.
