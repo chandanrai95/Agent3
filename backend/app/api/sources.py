@@ -11,6 +11,5 @@ async def get_source_by_agent(request: Request, agent_id: str):
     db = database.db
     user = request.state.user
     user_id = user["_id"]
-    print(f"called {user_id, agent_id}")
     resp = await get_sources_by_agent_id(db, agent_id, user_id)
     return resp

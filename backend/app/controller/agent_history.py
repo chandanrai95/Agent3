@@ -33,7 +33,7 @@ async def get_user_history_by_agent_id(db, user: user_schema.UserResponse, agent
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Agent id is required.")
     history = []
     cursor = db.agent_history.find({
-        # user_id: ObjectId(user_id),
+        'user_id': ObjectId(user_id),
         'agent_id': ObjectId(agent_id)
     })
 

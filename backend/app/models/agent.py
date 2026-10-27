@@ -8,7 +8,6 @@ class AgentModel(MongoBaseModel):
     name: str
     role: str
     model: str
-    api_key: str
 
 class AgentCreate(BaseModel):
     name: str = Field(..., min_length=6, max_length=255)
@@ -24,6 +23,7 @@ class AgentResponse(MongoBaseModel):
 class AgentStreamRequest(BaseModel):
     message: str
     source: Optional[str] = None
+    thread_id: Optional[str] = None
 
 class AgentModelUpdate(BaseModel):
     model: str
@@ -35,4 +35,3 @@ class AgentUpdate(BaseModel):
     name: Optional[str] = None
     role: Optional[str] = None
     model: Optional[str] = None
-    api_key: Optional[str] = None

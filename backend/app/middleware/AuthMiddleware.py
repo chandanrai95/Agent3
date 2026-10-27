@@ -6,6 +6,9 @@ import app.config.database as database
 from app.config.auth import verify_access_token
 from app.helper.user import get_user_byid
 
+# /v1 is the public API, it authenticates with an agent API key (see app/helper/agent_access.py)
+PUBLIC_PREFIXES = ('/api/auth', '/v1', '/health', '/docs', '/redoc', '/openapi.json')
+
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -13,8 +16,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         pathname = request.url.path
 
         token = headers.get('Authorization')
-        print(f"pathname {pathname}")
-        if pathname.startswith('/api/auth'):
+        if request.method == 'OPTIONS' or pathname.startswith(PUBLIC_PREFIXES):
             response = await call_next(request)
             return response
 
