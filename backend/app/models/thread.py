@@ -31,6 +31,8 @@ class SourceRef(BaseModel):
     source_name: str
     snippet: str
     score: Optional[float] = None
+    page: Optional[int] = None
+    content_type: Optional[str] = None
 
 
 class MessageResponse(MongoBaseModel):

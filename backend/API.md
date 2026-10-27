@@ -24,7 +24,7 @@ Send the key as `X-API-Key: ak_...` or `Authorization: Bearer ak_...`.
 | Method | Path | Notes |
 |---|---|---|
 | GET | `/v1/agent` | agent info |
-| POST/GET | `/v1/documents` | upload (multipart `file`: pdf, docx, txt, md) / list shared docs |
+| POST/GET | `/v1/documents` | upload (multipart `file`: pdf, docx, xlsx, csv, txt, md, png, jpg, webp, gif) / list shared docs |
 | DELETE | `/v1/documents/{id}` | |
 | POST | `/v1/threads` | `{"title", "external_user_id", "metadata"}` |
 | GET | `/v1/threads?external_user_id=&limit=&skip=` | |
@@ -56,6 +56,18 @@ Non-streaming response:
 
 With `"stream": true` the response is `text/event-stream` with events
 `token` (`{"content"}`), `sources`, `done` (same payload as the JSON response) and `error`.
+
+## What gets indexed
+
+| Content | How |
+|---|---|
+| Text (pdf, docx, txt, md) | split into ~800 char chunks |
+| Tables (pdf, docx, xlsx, csv) | kept as markdown tables, split by row groups with the header repeated |
+| Images in pdf/docx, image uploads | described/transcribed by `VISION_MODEL` (charts, diagrams, text in images, tables in images) |
+| Scanned pdf pages | whole page transcribed by `VISION_MODEL`, tables kept as markdown |
+
+Each chunk stores `content_type` (`text`, `table`, `image`, `scanned_page`) and `page`/`sheet`, returned in `sources`.
+At most `MAX_IMAGES_PER_DOCUMENT` (default 40) images are sent to the vision model per upload.
 
 ## Vector index
 

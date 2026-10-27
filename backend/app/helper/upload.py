@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi import UploadFile, HTTPException, status
 
 from app.config.setting import MAX_UPLOAD_MB
-from app.helper.RagPipeline import SUPPORTED_EXTENSIONS
+from app.helper.DocumentParser import SUPPORTED_EXTENSIONS
 
 UPLOAD_DIR= Path('uploads')
 UPLOAD_DIR.mkdir(exist_ok=True)

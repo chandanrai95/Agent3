@@ -14,3 +14,6 @@ VECTOR_INDEX_NAME = os.getenv('VECTOR_INDEX_NAME') or 'vector_index'
 # OpenAIEmbeddings default model (text-embedding-ada-002) produces 1536 dims
 EMBEDDING_DIMENSIONS = int(os.getenv('EMBEDDING_DIMENSIONS') or 1536)
 MAX_UPLOAD_MB = int(os.getenv('MAX_UPLOAD_MB') or 20)
+# model used to read images and scanned pages during ingestion, must support image input
+VISION_MODEL = os.getenv('VISION_MODEL') or 'gpt-4.1-mini'
+MAX_IMAGES_PER_DOCUMENT = int(os.getenv('MAX_IMAGES_PER_DOCUMENT') or 40)

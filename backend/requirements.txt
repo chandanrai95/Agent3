@@ -24,5 +24,6 @@ langchain-openai
 langchain-mongodb
 langchain-text-splitters
 tiktoken
-pypdf
-docx2txt
+pymupdf # pdf text, tables, images
+python-docx
+openpyxl

@@ -4,18 +4,16 @@ from pathlib import Path
 from typing import AsyncIterator, Optional
 
 from bson import ObjectId
-from langchain_community.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
 from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import app.config.database as database
 from app.config.database import SHARED_THREAD
 from app.config.llm import get_llm
 from app.config.setting import EMBEDDINGS_COLLECTION
+from app.helper.DocumentParser import parse_file, describe_images, chunk_segments
 
-SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
 HISTORY_TURNS = 3
 NOT_FOUND_ANSWER = "I cannot find this in the provided documents."
 
@@ -40,28 +38,26 @@ class RagPipeline:
         self.agent_id = ObjectId(agent["_id"])
         self.db = database.db
         self.vector_store = database.getVectorStoreDb()
-        self.splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
 
     # -----------------------------
     # INGESTION
     # -----------------------------
-    @staticmethod
-    def load_file(file_path: Path) -> list[Document]:
-        ext = file_path.suffix.lower()
-        if ext == ".pdf":
-            return PyPDFLoader(str(file_path)).load()
-        if ext == ".docx":
-            return Docx2txtLoader(str(file_path)).load()
-        if ext in (".txt", ".md"):
-            return TextLoader(str(file_path), autodetect_encoding=True).load()
-        raise ValueError(f"Unsupported file type '{ext}'. Supported: {', '.join(sorted(SUPPORTED_EXTENSIONS))}")
-
     async def ingest(self, file_path: Path, source_name: str, thread_id: Optional[str] = None) -> dict:
-        # loaders and splitters are blocking, keep them off the event loop
-        docs = await asyncio.to_thread(self.load_file, file_path)
-        chunks = [c for c in await asyncio.to_thread(self.splitter.split_documents, docs) if c.page_content.strip()]
+        # text and tables are parsed locally (blocking, so off the event loop),
+        # images and scanned pages are turned into text by the vision model
+        parsed = await asyncio.to_thread(parse_file, file_path)
+        image_segments, failed_images = await describe_images(parsed.images)
+        chunks = await asyncio.to_thread(chunk_segments, parsed.segments + image_segments, source_name)
         if not chunks:
-            raise ValueError(f"No readable text found in '{source_name}' (scanned PDFs need OCR first).")
+            if failed_images:
+                raise ValueError(f"Could not read the images/scanned pages in '{source_name}', "
+                                 f"the vision model failed for {failed_images} of them (check server logs).")
+            raise ValueError(f"No readable content found in '{source_name}'.")
+
+        content_stats = {}
+        for chunk in chunks:
+            kind = chunk.metadata["content_type"]
+            content_stats[kind] = content_stats.get(kind, 0) + 1
 
         now = datetime.utcnow()
         source = {
@@ -72,6 +68,9 @@ class RagPipeline:
             "source_name": source_name,
             "status": "processing",
             "chunk_count": len(chunks),
+            "content_stats": content_stats,
+            "images_processed": len(parsed.images) - failed_images,
+            "images_skipped": parsed.skipped_images + failed_images,
             "created_at": now,
             "updated_at": now,
         }
@@ -81,6 +80,8 @@ class RagPipeline:
         for i, chunk in enumerate(chunks):
             chunk.metadata = {
                 "page": chunk.metadata.get("page"),
+                "sheet": chunk.metadata.get("sheet"),
+                "content_type": chunk.metadata["content_type"],
                 "chunk_index": i,
                 "source": source_name,
                 "source_id": source_id,
@@ -135,8 +136,16 @@ class RagPipeline:
 
     @staticmethod
     def format_context(docs: list[tuple[Document, float]]) -> str:
+        def where(m: dict) -> str:
+            return "".join([
+                f"source: {m.get('source', 'unknown')}",
+                f", page {m['page']}" if m.get("page") else "",
+                f", sheet {m['sheet']}" if m.get("sheet") else "",
+                f", {m['content_type']}" if m.get("content_type") not in (None, "text") else "",
+            ])
+
         return "\n\n---\n\n".join(
-            f"[{i + 1}] (source: {d.metadata.get('source', 'unknown')})\n{d.page_content}"
+            f"[{i + 1}] ({where(d.metadata)})\n{d.page_content}"
             for i, (d, _) in enumerate(docs)
         )
 
@@ -153,6 +162,8 @@ class RagPipeline:
                 "source_name": str(d.metadata.get("source", "unknown")).replace("uploads/", ""),
                 "snippet": d.page_content[:200],
                 "score": round(float(score), 4),
+                "page": d.metadata.get("page"),
+                "content_type": d.metadata.get("content_type", "text"),
             }
         return sorted(sources.values(), key=lambda s: s["score"], reverse=True)
 
