@@ -1,7 +1,7 @@
 // Every Material Symbol the app renders. Only these glyphs are downloaded (see app/layout.tsx),
 // so a new icon has to be added here; the IconName type makes TypeScript enforce it.
 export const ICON_NAMES = [
-  'add', 'add_comment', 'bolt', 'chat_bubble', 'key', 'more_horiz', 'settings', 'arrow_back', 'alternate_email', 'api', 'arrow_upward', 'article', 'attach_file', 'auto_fix_high',
+  'add', 'add_comment', 'bolt', 'code', 'language', 'open_in_new', 'play_arrow', 'widgets', 'hub', 'chat_bubble', 'key', 'more_horiz', 'settings', 'arrow_back', 'alternate_email', 'api', 'arrow_upward', 'article', 'attach_file', 'auto_fix_high',
   'badge', 'check', 'check_circle', 'chevron_right', 'close', 'cloud_upload', 'content_copy', 'database',
   'delete', 'description', 'edit', 'error', 'expand_more', 'filter_alt', 'folder_managed', 'folder_open',
   'format_quote', 'forum', 'gavel', 'help', 'image', 'info', 'lightbulb', 'lock', 'lock_reset', 'logout',

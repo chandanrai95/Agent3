@@ -112,6 +112,15 @@ const AgentNavItem = ({ agent, active, tileColor }: Props) => {
                 <Icon name="edit" className="text-[16px] text-outline" />
                 Edit agent
               </button>
+              <Link
+                href={`/agent/${agent._id}/integrations`}
+                role="menuitem"
+                onClick={() => { setMenuOpen(false); setSidebarOpen(false) }}
+                className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-label-md text-on-surface hover:bg-surface-container-high"
+              >
+                <Icon name="api" className="text-[16px] text-outline" />
+                Integrations
+              </Link>
               <button
                 type="button"
                 role="menuitem"

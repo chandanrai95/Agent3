@@ -1,4 +1,5 @@
 'use client'
+import Link from "next/link"
 import Icon from "../ui/icon"
 import ModelSelect from "../ui/model-select"
 import ScopeSelect from "./scope-select"
@@ -56,6 +57,10 @@ const AgentBar = ({
       </div>
 
     <div className="flex items-center gap-1.5 ml-auto">
+      <Link href={`/agent/${agent._id}/integrations`} title="Use this agent on other platforms" className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface text-label-md transition-colors shadow-sm">
+        <Icon name="api" className="text-[18px]" />
+        <span className="hidden sm:inline">Integrate</span>
+      </Link>
       <button type="button" title="New chat" aria-label="New chat" onClick={onNewChat} disabled={!canStartNewChat} className="p-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors shadow-sm flex disabled:opacity-40">
         <Icon name="add_comment" className="text-[18px]" />
       </button>

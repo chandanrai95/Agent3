@@ -129,3 +129,39 @@ default 100,000). When it's used up, chat and uploads return `429` with a messag
 |---|---|
 | `FREE_TOKEN_LIMIT` | monthly tokens per user on the platform key |
 | `SECRETS_ENCRYPTION_KEY` | encrypts stored user keys; changing it makes saved keys unreadable (users re-enter them). Falls back to `JWT_SECRET_KEY` |
+
+## Using an agent on other platforms
+
+Everything is also configured in the app under **Agent → Integrate**.
+
+### OpenAI-compatible endpoint
+
+For tools that accept a custom OpenAI endpoint (Botpress, Typebot, Flowise, n8n, LibreChat, Open WebUI,
+LangChain, the OpenAI SDKs):
+
+| Setting | Value |
+|---|---|
+| Base URL | `https://YOUR-API/v1` |
+| API key | an agent API key (`ak_...`) |
+| Model | `agent-{agent_id}` (ignored, the key selects the agent) |
+
+`POST /v1/chat/completions` takes OpenAI's request shape (`messages`, `stream`) and returns a `chat.completion`
+(or `chat.completion.chunk` SSE ending with `data: [DONE]`) plus a `sources` field. Nothing is stored: send the
+whole conversation each time. Caller system messages are ignored, the agent's role applies. `GET /v1/models`
+lists the agent.
+
+### Website widget
+
+Enable it per agent, list the allowed origins, then add before `</body>`:
+
+```html
+<script src="https://YOUR-API/widget.js" data-agent-key="pk_..." async></script>
+```
+
+The `pk_` key is public by design: it only works while the widget is enabled and from allowed origins
+(empty list = any site). Each visitor gets their own conversations (stored as threads with
+`external_user_id = widget:{visitor id}`), limited to 20 messages per 10 minutes per visitor and 60 per IP.
+Usage counts against the agent owner's token quota or OpenAI key. `data-position="left"` and `data-open="true"`
+are optional.
+
+The rate limiter is in memory: with several backend workers, move it to Redis.
