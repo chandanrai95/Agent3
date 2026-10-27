@@ -7,7 +7,7 @@ from app.config.auth import verify_access_token
 from app.helper.user import get_user_byid
 
 # /v1 is the public API, it authenticates with an agent API key (see app/helper/agent_access.py)
-PUBLIC_PREFIXES = ('/api/auth', '/v1', '/health', '/docs', '/redoc', '/openapi.json')
+PUBLIC_PREFIXES = ('/api/auth', '/v1', '/widget', '/health', '/docs', '/redoc', '/openapi.json')
 
 
 class AuthMiddleware(BaseHTTPMiddleware):

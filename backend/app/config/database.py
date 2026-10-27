@@ -144,6 +144,7 @@ async def ensure_indexes():
     await db.sources.create_index([("agent_id", 1), ("thread_id", 1)])
     await db.api_keys.create_index("key_hash", unique=True)
     await db.user_settings.create_index("user_id", unique=True)
+    await db.agents.create_index("widget.public_key", unique=True, sparse=True)
     await db.usage.create_index([("user_id", 1), ("period", 1)], unique=True)
 
     try:

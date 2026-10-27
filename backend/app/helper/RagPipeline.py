@@ -115,6 +115,7 @@ class RagPipeline:
         self.credentials = credentials or LLMCredentials(user_id=ObjectId(agent["user_id"]))
         self.api_key = self.credentials.api_key
         self.usage = UsageMeter(self.credentials)
+        self.last_request_tokens = 0
         self.vector_store = MongoDBAtlasVectorSearch(
             collection=database.get_pymongo_client()[MONGO_DB][EMBEDDINGS_COLLECTION],
             embedding=get_embeddings(self.api_key),
@@ -384,6 +385,7 @@ class RagPipeline:
         A stopped stream never receives OpenAI's usage chunk, so its tokens are estimated."""
         if "chat" not in self.usage.tokens:
             self.usage.record("chat", count_tokens([p for p in prompt_parts if p]))
+        self.last_request_tokens = sum(self.usage.tokens.values())
         task = asyncio.create_task(self.usage.save(self.db))
         _background_tasks.add(task)
         task.add_done_callback(_background_tasks.discard)
@@ -466,6 +468,25 @@ class RagPipeline:
         await self.db.threads.update_one({"_id": ObjectId(thread_id)}, {"$set": {"updated_at": now}})
         message["_id"] = result.inserted_id
         return message
+
+    async def chat_stateless(self, question: str, history: list,
+                             source_ids: Optional[list[str]] = None) -> AsyncIterator[dict]:
+        """One turn where the caller owns the conversation (OpenAI-compatible API), nothing is stored.
+        Yields the same events as chat_thread."""
+        history = [self._to_message("user" if isinstance(m, HumanMessage) else "assistant", m.content)
+                   for m in history][-RECENT_MESSAGES:]
+        search_query, context, sources = await self.prepare(question, history, None, None, source_ids)
+
+        answer = ""
+        try:
+            async for token in self.stream_answer(question, history, context):
+                answer += token
+                yield {"type": "token", "content": token}
+        finally:
+            self.finish_usage([context, question, answer])
+
+        yield {"type": "sources", "sources": sources}
+        yield {"type": "done", "answer": answer, "sources": sources, "search_query": search_query}
 
     async def chat_thread(self, thread_id: str, question: str,
                           source_ids: Optional[list[str]] = None) -> AsyncIterator[dict]:

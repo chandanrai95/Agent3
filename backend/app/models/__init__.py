@@ -6,3 +6,5 @@ import app.models.sources as sources_schema
 import app.models.thread as thread_schema
 import app.models.api_key as api_key_schema
 import app.models.settings as settings_schema
+import app.models.openai_compat as openai_compat_schema
+import app.models.widget as widget_schema
