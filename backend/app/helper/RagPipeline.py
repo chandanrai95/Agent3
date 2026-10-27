@@ -19,7 +19,8 @@ from app.config.setting import MONGO_DB, EMBEDDINGS_COLLECTION, VECTOR_INDEX_NAM
 from app.helper.DocumentParser import parse_file, describe_images, chunk_segments
 from app.helper.credentials import LLMCredentials, UsageMeter, count_tokens, resolve_credentials
 
-NOT_FOUND_ANSWER = "I cannot find this in the provided documents."
+# said when the documents don't cover a question
+NOT_FOUND_ANSWER = "I'm sorry, I don't have information on that. Is there anything else I can help you with?"
 
 # memory: recent messages go to the model verbatim, older ones are folded into a running summary
 RECENT_MESSAGES = 8

@@ -79,7 +79,7 @@ At most `MAX_IMAGES_PER_DOCUMENT` (default 40) images are sent to the vision mod
 2. **Hybrid retrieval**: vector search (`EMBEDDING_MODEL`, default `text-embedding-3-small`) and keyword search
    (Atlas Search, finds exact ids, codes and numbers) are fused with reciprocal rank fusion. Weak vector-only matches are dropped.
 3. **Grounded answer** at temperature 0: answers only from the documents, cites `[n]` = `sources[n-1]`, quotes table
-   values exactly, says `"I cannot find this in the provided documents."` when the answer isn't there.
+   values exactly, says `"I'm sorry, I don't have information on that. Is there anything else I can help you with?"` when the answer isn't there.
 4. **Memory**: the last 8 messages are sent verbatim; older messages are folded into a running `summary` on the thread.
 
 ## Changing the embedding model
