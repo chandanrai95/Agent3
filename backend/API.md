@@ -66,14 +66,36 @@ With `"stream": true` the response is `text/event-stream` with events
 | Images in pdf/docx, image uploads | described/transcribed by `VISION_MODEL` (charts, diagrams, text in images, tables in images) |
 | Scanned pdf pages | whole page transcribed by `VISION_MODEL`, tables kept as markdown |
 
+Chunks carry a header embedded with the text (`[Document: x.pdf | Section: Fees | Page 3 | Table: Fee schedule]`),
+so a chunk is findable and understandable on its own. Repeated page headers/footers and page numbers are removed.
+
 Each chunk stores `content_type` (`text`, `table`, `image`, `scanned_page`) and `page`/`sheet`, returned in `sources`.
 At most `MAX_IMAGES_PER_DOCUMENT` (default 40) images are sent to the vision model per upload.
+
+## How answers are produced
+
+1. **Follow-up rewrite**: with conversation history, the question is rewritten into a standalone search query
+   (`"and in 2023?"` → `"Pro plan price in 2023"`), stored on the user message as `search_query`.
+2. **Hybrid retrieval**: vector search (`EMBEDDING_MODEL`, default `text-embedding-3-small`) and keyword search
+   (Atlas Search, finds exact ids, codes and numbers) are fused with reciprocal rank fusion. Weak vector-only matches are dropped.
+3. **Grounded answer** at temperature 0: answers only from the documents, cites `[n]` = `sources[n-1]`, quotes table
+   values exactly, says `"I cannot find this in the provided documents."` when the answer isn't there.
+4. **Memory**: the last 8 messages are sent verbatim; older messages are folded into a running `summary` on the thread.
+
+## Changing the embedding model
+
+Vectors from different models can't be compared. After changing `EMBEDDING_MODEL` (or for chunks indexed before this
+version, which used `text-embedding-ada-002`) run:
+
+```bash
+cd backend && python -m scripts.reembed_chunks
+```
 
 ## Vector index
 
 On startup the app makes sure the Atlas vector index `vector_index` on `embeddings` declares the
-filter fields `agent_id`, `thread_id`, `source_id`. If your cluster tier doesn't allow managing search
-indexes from the driver, add them in the Atlas UI:
+filter fields `agent_id`, `thread_id`, `source_id`. It also creates the keyword index `text_index`.
+If your cluster tier doesn't allow managing search indexes from the driver, add them in the Atlas UI:
 
 ```json
 {"fields": [
@@ -82,4 +104,13 @@ indexes from the driver, add them in the Atlas UI:
   {"type": "filter", "path": "thread_id"},
   {"type": "filter", "path": "source_id"}
 ]}
+```
+
+`text_index` (Atlas Search):
+
+```json
+{"mappings": {"dynamic": false, "fields": {
+  "text": {"type": "string"}, "agent_id": {"type": "objectId"},
+  "source_id": {"type": "objectId"}, "thread_id": {"type": "token"}
+}}}
 ```

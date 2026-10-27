@@ -24,6 +24,8 @@ class ThreadResponse(MongoBaseModel):
     title: Optional[str] = None
     external_user_id: Optional[str] = None
     metadata: dict = {}
+    # running summary of older messages, kept so long threads remember earlier context
+    summary: Optional[str] = None
 
 
 class SourceRef(BaseModel):
@@ -32,6 +34,8 @@ class SourceRef(BaseModel):
     snippet: str
     score: Optional[float] = None
     page: Optional[int] = None
+    pages: list[int] = []
+    section: Optional[str] = None
     content_type: Optional[str] = None
 
 

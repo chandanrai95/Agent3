@@ -4,10 +4,12 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import  MongoClient
 from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_mongodb.index import create_vector_search_index, update_vector_search_index
+from pymongo.operations import SearchIndexModel
 
 from typing import Optional
 
-from app.config.setting import DATABASE_URL, MONGO_DB, EMBEDDINGS_COLLECTION, VECTOR_INDEX_NAME, EMBEDDING_DIMENSIONS
+from app.config.setting import DATABASE_URL, MONGO_DB, EMBEDDINGS_COLLECTION, VECTOR_INDEX_NAME, \
+    EMBEDDING_DIMENSIONS, EMBEDDING_MODEL, TEXT_INDEX_NAME
 import certifi
 
 client: Optional[AsyncIOMotorClient] = None
@@ -19,6 +21,18 @@ _vector_stores: dict = {}
 
 # fields used in vector search pre_filter, Atlas rejects filters on fields not declared in the index
 VECTOR_FILTER_FIELDS = ["agent_id", "thread_id", "source_id"]
+# keyword (BM25) index used next to the vector index, exact terms like ids, codes and numbers in tables
+TEXT_INDEX_DEFINITION = {
+    "mappings": {
+        "dynamic": False,
+        "fields": {
+            "text": {"type": "string"},
+            "agent_id": {"type": "objectId"},
+            "source_id": {"type": "objectId"},
+            "thread_id": {"type": "token"},
+        },
+    }
+}
 SHARED_THREAD = "shared"
 
 #I want to use and modify variables defined at the module (global) level, not create new local ones. other wise it will create a local variables to function scope
@@ -68,7 +82,7 @@ def getVectorStoreDb(collection_name: str = EMBEDDINGS_COLLECTION, index_name=VE
         vector_db = get_pymongo_client()[MONGO_DB]
         _vector_stores[key] = MongoDBAtlasVectorSearch(
             collection=vector_db[collection_name],
-            embedding=OpenAIEmbeddings(),
+            embedding=OpenAIEmbeddings(model=EMBEDDING_MODEL),
             index_name=index_name,
         )
 
@@ -108,6 +122,17 @@ def _ensure_vector_index():
     print(f"Updated vector index {VECTOR_INDEX_NAME} with filters {VECTOR_FILTER_FIELDS}")
 
 
+def _ensure_text_index():
+    collection = get_pymongo_client()[MONGO_DB][EMBEDDINGS_COLLECTION]
+    existing = next(iter(collection.list_search_indexes(TEXT_INDEX_NAME)), None)
+    if existing is None:
+        collection.create_search_index(SearchIndexModel(definition=TEXT_INDEX_DEFINITION, name=TEXT_INDEX_NAME, type="search"))
+        print(f"Created text index {TEXT_INDEX_NAME}")
+    elif existing.get("latestDefinition", {}).get("mappings") != TEXT_INDEX_DEFINITION["mappings"]:
+        collection.update_search_index(TEXT_INDEX_NAME, TEXT_INDEX_DEFINITION)
+        print(f"Updated text index {TEXT_INDEX_NAME}")
+
+
 async def ensure_indexes():
     # chunks uploaded before threads existed belong to the whole agent
     await db[EMBEDDINGS_COLLECTION].update_many(
@@ -125,3 +150,7 @@ async def ensure_indexes():
         # Atlas search index management needs an M10+ cluster or Atlas CLI permissions on some tiers
         print(f"WARNING: could not verify vector index '{VECTOR_INDEX_NAME}': {e}. "
               f"Make sure it declares filter fields {VECTOR_FILTER_FIELDS}.")
+    try:
+        await asyncio.to_thread(_ensure_text_index)
+    except Exception as e:
+        print(f"WARNING: could not verify text index '{TEXT_INDEX_NAME}': {e}. Retrieval falls back to vector only.")

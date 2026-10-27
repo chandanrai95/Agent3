@@ -1,13 +1,14 @@
-import os
-from fastapi import FastAPI
 from dotenv import load_dotenv
+
+# before any app import: app.config.setting reads the environment at import time
+load_dotenv()
+
+from fastapi import FastAPI
 
 from app.router import setup_router
 from app.config.cors import setup_cors
 from app.middleware import setup_middleware
 from app.config.database import connect_mongo, close_mongo
-
-load_dotenv()
 
 app = FastAPI()
 

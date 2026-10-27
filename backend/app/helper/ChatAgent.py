@@ -34,11 +34,10 @@ class ChatAgent:
             return
 
         history = await self.rag.load_agent_history(user_id)
-        docs = await self.rag.retrieve(question, source_ids=source_ids)
-        sources = self.rag.extract_sources(docs)
+        _, context, sources = await self.rag.prepare(question, history, source_ids=source_ids)
 
         answer = ""
-        async for token in self.rag.stream_answer(question, history, docs):
+        async for token in self.rag.stream_answer(question, history, context):
             answer += token
             yield token
 

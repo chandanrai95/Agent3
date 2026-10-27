@@ -1,11 +1,11 @@
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
 
-def get_llm(model_name: str = 'gpt-4.1-mini', temperature: int = 0.2):
+def get_llm(model_name: str = 'gpt-4.1-mini', temperature: float = 0.2, streaming: bool = True):
     llm = ChatOpenAI(
         model=model_name,
         temperature=temperature,
-        streaming=True
+        streaming=streaming
     )
 
     return llm
