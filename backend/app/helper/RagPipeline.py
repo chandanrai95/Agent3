@@ -114,7 +114,8 @@ class RagPipeline:
     # -----------------------------
     # INGESTION
     # -----------------------------
-    async def ingest(self, file_path: Path, source_name: str, thread_id: Optional[str] = None) -> dict:
+    async def ingest(self, file_path: Path, source_name: str, thread_id: Optional[str] = None,
+                     size_bytes: Optional[int] = None) -> dict:
         # text and tables are parsed locally (blocking, so off the event loop),
         # images and scanned pages are turned into text by the vision model
         parsed = await asyncio.to_thread(parse_file, file_path)
@@ -138,6 +139,7 @@ class RagPipeline:
             "thread_id": ObjectId(thread_id) if thread_id else None,
             "type": "document",
             "source_name": source_name,
+            "size_bytes": size_bytes,
             "status": "processing",
             "chunk_count": len(chunks),
             "content_stats": content_stats,

@@ -32,7 +32,7 @@ export const loginApi = async ({
   password
 }: LoginInput) => {
   try {
-    let { data } = await axios.post('/api/auth/login', {
+    const { data } = await axios.post('/api/auth/login', {
       email,
       password
     })
@@ -45,7 +45,7 @@ export const loginApi = async ({
 
 export const logoutApi = async () => {
   try {
-    let { data } = await axios.post('/api/auth/logout')
+    const { data } = await axios.post('/api/auth/logout')
     return data
   } catch (err) {
     console.error('logoutApi', err);

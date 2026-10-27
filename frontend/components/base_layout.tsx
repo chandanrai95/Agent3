@@ -1,7 +1,8 @@
 'use client'
 import React from "react";
-import Sidebar from "./sidebar";
-import Header from "./agent-header";
+import Sidebar from "./shell/sidebar";
+import Topbar from "./shell/topbar";
+import ModalHost from "./modals/modal-host";
 import { usePathname } from "next/navigation";
 import { getUserAgents } from "@/lib/api/agents";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -13,47 +14,45 @@ const BaseLayout = ({
 }: { user: User, children: React.ReactNode }) => {
   const pathname = usePathname();
   const { setUser, isLoggedIn } = useAuthStore();
-  const { agents, setAgents } = useAppStore();
-
-  const fetchAgents = async () => {
-    try {
-      const _agents = await getUserAgents()
-      setAgents(_agents)
-    } catch (err) {
-      console.error('fetchAgents', err)
-    }
-  }
+  const { setAgents } = useAppStore();
 
   React.useEffect(() => {
     if (!isLoggedIn) return;
+
+    const fetchAgents = async () => {
+      try {
+        const _agents = await getUserAgents()
+        setAgents(_agents)
+      } catch (err) {
+        console.error('fetchAgents', err)
+        setAgents([])
+      }
+    }
     fetchAgents()
 
-    addEventListener('agents_updated',fetchAgents)
+    addEventListener('agents_updated', fetchAgents)
 
     return () => {
-      removeEventListener('agents_updated',fetchAgents)
+      removeEventListener('agents_updated', fetchAgents)
     }
-  }, [isLoggedIn])
+  }, [isLoggedIn, setAgents])
 
   React.useEffect(() => {
     setUser(user)
-  },[user])
+  }, [user, setUser])
 
   if (pathname.startsWith('/auth')) {
     return children
   }
 
-
   return (
-    <div className="flex flex-1 h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <div
-        className="flex flex-1 flex-col"
-      >
-        {/* <Header /> */}
+      <div className="flex flex-1 flex-col min-w-0">
+        <Topbar />
         {children}
       </div>
-
+      <ModalHost />
     </div>
   )
 }

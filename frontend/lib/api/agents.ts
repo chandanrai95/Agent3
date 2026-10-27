@@ -2,9 +2,9 @@ import axios, { AxiosError } from "axios";
 
 export const getUserAgents = async () => {
   try {
-    const { data } = await axios.get(`${process.env.NEXT_PUBLIC_APP_URL}/api/agents`)
+    const { data } = await axios.get('/api/agents')
 
-    return data
+    return Array.isArray(data) ? data : []
   } catch (err) {
     console.error('getUserAgents error', err);
     return Promise.reject(err)
@@ -55,56 +55,7 @@ export const updateAgentModel = async ({ id, model }: { id: string, model: strin
   }
 }
 
-export const uploadAgentDocument = async ({ id, file }: { id: string | null, file: File }) => {
-  try {
-
-    const formData = new FormData()
-    formData.append("file", file)
-
-    const { data } = await axios({
-      url: `/api/agents/${id}/upload`,
-      method: 'POST',
-      data: formData
-    })
-    return data
-  } catch (err) {
-    console.error('uploadAgentDocument', err)
-    if (err instanceof AxiosError) {
-
-      return Promise.reject(err.response?.data)
-    }
-    return Promise.reject(err)
-  }
-}
-
-
-export const agentChat = async ({ id, message }: { id: string, message: string }) => {
-  try {
-
-     const response = await fetch(`/api/agents/${id}/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message }),
-    })
-
-    if (!response.body) return
-
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    return decoder
-  } catch (err) {
-    console.error('uploadAgentDocument', err)
-    if (err instanceof AxiosError) {
-
-      return Promise.reject(err.response?.data)
-    }
-    return Promise.reject(err)
-  }
-}
-
-export const updateAgent = async ({ id, payload = {} }: { id: string, payload: any }) => {
+export const updateAgent = async ({ id, payload = {} }: { id: string, payload: Partial<Agent> }) => {
   try {
     if (!id) {
       throw new Error('Id is required!')
@@ -117,6 +68,19 @@ export const updateAgent = async ({ id, payload = {} }: { id: string, payload: a
     console.error('updateAgent', err)
     if (err instanceof AxiosError) {
 
+      return Promise.reject(err.response?.data)
+    }
+    return Promise.reject(err)
+  }
+}
+
+export const deleteAgent = async (id: string) => {
+  try {
+    const { data } = await axios.delete(`/api/agents/${id}`)
+    return data
+  } catch (err) {
+    console.error('deleteAgent', err)
+    if (err instanceof AxiosError) {
       return Promise.reject(err.response?.data)
     }
     return Promise.reject(err)

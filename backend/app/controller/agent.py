@@ -3,6 +3,8 @@ from fastapi import HTTPException, status
 from app.models import agent_schema, user_schema
 from bson import ObjectId
 
+from app.config.setting import EMBEDDINGS_COLLECTION
+
 
 async def get_user_all_agents(db, user: user_schema.UserResponse):
     user_id = ObjectId(user["_id"])
@@ -94,19 +96,21 @@ async def update_user_agent(db, user: user_schema.UserResponse, agent_id: str, a
 
 
 async def delete_user_agent(db, user: user_schema.UserResponse, agent_id: str):
-    user_id = user._id
+    if not ObjectId.is_valid(agent_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found.")
+    agent = await db.agents.find_one({"_id": ObjectId(agent_id), "user_id": ObjectId(user["_id"])})
+    if not agent:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found.")
 
-    if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not logged in.")
-
-    if not agent_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Agent id is required.")
-
-    result = await db.agents.delete_one({"_id": ObjectId(agent_id)})
-
-    if result.deleted_count == 0:
-        return {"success": False}
-
+    # everything that belongs to the agent: chunks, documents, threads, history and API keys
+    query = {"agent_id": agent["_id"]}
+    await db[EMBEDDINGS_COLLECTION].delete_many(query)
+    await db.sources.delete_many(query)
+    await db.messages.delete_many(query)
+    await db.threads.delete_many(query)
+    await db.agent_history.delete_many(query)
+    await db.api_keys.delete_many(query)
+    await db.agents.delete_one({"_id": agent["_id"]})
     return {"success": True}
 
 

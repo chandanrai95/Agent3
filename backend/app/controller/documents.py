@@ -11,7 +11,7 @@ from app.helper.upload import upload_document
 async def ingest_upload(agent: dict, file: UploadFile, thread_id: Optional[str] = None):
     file_path = await upload_document(file)
     try:
-        return await RagPipeline(agent).ingest(file_path, file.filename, thread_id)
+        return await RagPipeline(agent).ingest(file_path, file.filename, thread_id, file_path.stat().st_size)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e))
     finally:

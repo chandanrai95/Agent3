@@ -1,10 +1,8 @@
 import React from "react"
 
-const Layout = ({ children }: { children: React.ReactNode}) => {
+const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div 
-      className="flex flex-1 overflow-y-auto flex-col"
-    >
+    <div className="flex flex-1 min-h-0 flex-col">
       {children}
     </div>
   )

@@ -4,7 +4,7 @@ from bson import ObjectId
 from app.models import agent_schema
 import app.config.database as database
 from app.controller.agent import get_agent_byid, create_user_agent, update_user_agent, get_user_all_agents, \
-    update_agent_role_by_id, update_agent_by_id
+    update_agent_role_by_id, update_agent_by_id, delete_user_agent
 from app.controller.documents import ingest_upload
 from app.controller.threads import get_thread
 from app.helper.agent_access import get_owned_agent
@@ -81,3 +81,8 @@ async def update_agent_role(request: Request, id: str, payload: agent_schema.Age
     agent = await update_agent_by_id(db ,id, user_id, payload)
     return agent
 
+
+
+@router.delete('/{id}', status_code=status.HTTP_200_OK)
+async def delete_agent(request: Request, id: str):
+    return await delete_user_agent(database.db, request.state.user, id)

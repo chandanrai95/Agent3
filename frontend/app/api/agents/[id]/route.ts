@@ -52,3 +52,23 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return new NextResponse('Something went wrong.', { status: 500 })
   }
 }
+
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const { data } = await axiosClient.delete(`/api/agents/${id}`)
+    return NextResponse.json(data, { status: 200 })
+  } catch (err) {
+    console.error('agents id delete', err);
+    if (err instanceof AxiosError) {
+      return NextResponse.json(
+        err.response?.data || { 'message': 'Something went wrong.' },
+        {
+          status: err.response?.status
+        }
+      )
+    }
+
+    return new NextResponse('Something went wrong.', { status: 500 })
+  }
+}

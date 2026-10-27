@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}
+@keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.animate-pulse-slow { animation: pulse-slow 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.shimmer-bar { background: linear-gradient(90deg, rgba(192,193,255,0.05) 0%, rgba(192,193,255,0.3) 50%, rgba(192,193,255,0.05) 100%); background-size: 200% 100%; animation: shimmer 2s infinite linear; }
+</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"inverse-on-surface":"#313032","on-error":"#690005","outline":"#908fa0","surface-variant":"#353437","on-tertiary":"#490080","tertiary-fixed-dim":"#ddb7ff","inverse-primary":"#494bd6","rag-indexed":"#06b6d4","surface-light-subtle":"#f4f4f5","primary-fixed":"#e1e0ff","surface-container-lowest":"#0e0e10","on-tertiary-fixed":"#2c0051","secondary-fixed-dim":"#7bd0ff","surface-dark-subtle":"#18181b","on-primary-container":"#0d0096","rag-syncing":"#f59e0b","primary":"#c0c1ff","surface-tint":"#c0c1ff","secondary-container":"#00a6e0","on-tertiary-container":"#400071","border-dark":"#27272a","surface-dim":"#131315","background":"#131315","on-primary":"#1000a9","on-secondary-fixed-variant":"#004c69","secondary-fixed":"#c4e7ff","surface-bright":"#39393b","model-custom":"#8b5cf6","on-error-container":"#ffdad6","primary-container":"#8083ff","surface-container-low":"#1c1b1d","tertiary-fixed":"#f0dbff","on-surface":"#e5e1e4","surface":"#131315","border-light":"#e4e4e7","error":"#ffb4ab","outline-variant":"#464554","surface-container-high":"#2a2a2c","on-background":"#e5e1e4","model-gpt4o":"#10a37f","on-primary-fixed-variant":"#2f2ebe","on-tertiary-fixed-variant":"#6900b3","error-container":"#93000a","on-secondary":"#00354a","surface-light":"#ffffff","on-secondary-fixed":"#001e2c","model-gemini":"#2563eb","on-surface-variant":"#c7c4d7","on-secondary-container":"#00374d","tertiary-container":"#b76dff","primary-fixed-dim":"#c0c1ff","surface-container":"#201f22","tertiary":"#ddb7ff","surface-container-highest":"#353437","model-claude":"#d97706","surface-dark":"#09090b","on-primary-fixed":"#07006c","inverse-surface":"#e5e1e4","secondary":"#7bd0ff"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"space-xl":"1.5rem",margin:"1rem","space-3xl":"3rem",gutter:"1rem","space-lg":"1rem","margin-md":"1.5rem","margin-lg":"2rem","space-md":"0.75rem","space-2xl":"2rem","space-xs":"0.25rem","space-sm":"0.5rem","gutter-lg":"1.5rem"},fontFamily:{"display-lg":["Inter"],"headline-sm":["Inter"],"body-lg":["Inter"],"body-md":["Inter"],"label-md":["Inter"],"headline-md":["Inter"],"display-lg-mobile":["Inter"],"body-sm":["Inter"],"code-inline":["JetBrains Mono"],"headline-lg":["Inter"],"label-sm":["Inter"]},fontSize:{"display-lg":["40px",{lineHeight:"48px",letterSpacing:"-0.025em",fontWeight:"600"}],"headline-sm":["18px",{lineHeight:"26px",letterSpacing:"-0.01em",fontWeight:"500"}],"body-lg":["16px",{lineHeight:"26px",letterSpacing:"-0.005em",fontWeight:"400"}],"body-md":["14px",{lineHeight:"22px",letterSpacing:"0em",fontWeight:"400"}],"label-md":["13px",{lineHeight:"18px",letterSpacing:"0.005em",fontWeight:"500"}],"headline-md":["22px",{lineHeight:"30px",letterSpacing:"-0.015em",fontWeight:"600"}],"display-lg-mobile":["30px",{lineHeight:"38px",letterSpacing:"-0.02em",fontWeight:"600"}],"body-sm":["13px",{lineHeight:"18px",letterSpacing:"0em",fontWeight:"400"}],"code-inline":["12px",{lineHeight:"18px",letterSpacing:"0em",fontWeight:"400"}],"headline-lg":["28px",{lineHeight:"36px",letterSpacing:"-0.02em",fontWeight:"600"}],"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.02em",fontWeight:"500"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface min-h-screen antialiased selection:bg-primary-container selection:text-on-primary">
+<!-- Left Sidebar -->
+<aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.25)] border-r border-surface-container"><div class="flex flex-col"><div class="p-space-lg flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Agent3 Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VSEFXGsJkEJyHOQKWPesLTPjabC8aWHJqJzl2ZVOxbzWXu9ClEcBOfBBo-uEdcjR4udMQWsaOYqEi183O-qKq0ZDhZk1MDaHXD70GRRyUGoWG-CoSaJFM1fKBko92oEibqUHmnpM5HYYXDsXTn07Zr8fCSPnLHfDecZbwq8oLq_4i4oEwogPbQmxTqhjA8nRuqqWBnQeAMX04tE6IUCRW6P8qIiYN0UX_xsk6vmMxz"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-semibold">Agent3</span><span class="px-space-xs py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">Beta</span></div></div><div class="px-space-lg pb-space-md"><button class="w-full flex items-center justify-between px-space-md py-space-sm rounded-lg bg-primary-container text-on-primary font-label-md text-label-md transition-all hover:bg-primary hover:text-on-primary shadow-sm" type="button"><span class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[18px]">add</span><span>New Agent</span></span><kbd class="px-space-xs py-0.5 rounded bg-surface-container-lowest text-primary font-code-inline text-code-inline">⌘K</kbd></button></div><div class="px-space-lg pt-space-md pb-space-xs"><span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">YOUR AGENTS</span></div><nav class="flex flex-col px-space-sm gap-space-xs" data-active-classes="bg-surface-container-high text-on-surface"><a aria-current="page" class="group relative flex items-center justify-between px-space-md py-space-sm rounded-lg transition-all bg-surface-container-high text-on-surface" data-path="legal-doc-analyst" href="#"><div class="flex items-center gap-space-sm min-w-0"><div class="w-7 h-7 rounded-lg bg-primary-container/20 flex items-center justify-center font-label-md text-label-md text-primary font-bold flex-shrink-0">L</div><div class="flex flex-col min-w-0"><span class="truncate font-label-md text-label-md text-on-surface font-medium">Legal Doc Analyst</span><span class="font-label-sm text-label-sm text-model-gpt4o font-medium">gpt-4o</span></div></div><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">more_horiz</span></div></a><a class="group relative flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="code-reviewer" href="#"><div class="flex items-center gap-space-sm min-w-0"><div class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center font-label-md text-label-md text-secondary flex-shrink-0 font-medium">C</div><div class="flex flex-col min-w-0"><span class="truncate font-label-md text-label-md">Code Reviewer</span><span class="font-label-sm text-label-sm text-outline">gpt-4.1-mini</span></div></div><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">more_horiz</span></div></a><a class="group relative flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="support-knowledge-ai" href="#"><div class="flex items-center gap-space-sm min-w-0"><div class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center font-label-md text-label-md text-tertiary flex-shrink-0 font-medium">S</div><div class="flex flex-col min-w-0"><span class="truncate font-label-md text-label-md">Support Knowledge AI</span><span class="font-label-sm text-label-sm text-outline">gpt-4.1-mini</span></div></div><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">more_horiz</span></div></a><a class="group relative flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="financial-research" href="#"><div class="flex items-center gap-space-sm min-w-0"><div class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center font-label-md text-label-md text-rag-indexed flex-shrink-0 font-medium">F</div><div class="flex flex-col min-w-0"><span class="truncate font-label-md text-label-md">Financial Research</span><span class="font-label-sm text-label-sm text-outline">o3-mini</span></div></div><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">more_horiz</span></div></a></nav></div><div class="p-space-md bg-surface-container-lowest m-space-sm rounded-xl flex flex-col gap-space-sm border border-surface-container"><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm min-w-0"><img alt="Profile" class="w-8 h-8 rounded-full object-cover flex-shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV_7fo7U6B69Q4RHEEYg9tc1QTjAelkHWYwIQhTljeLUszjkZloxXEoruNMQn3G1NX6YC3UWmKqfyNcSRCEKy2bBY04WtrMCWdjQrj-zVJPvFPkpPS0BKr-u7ygPs9B3_r18628oPEE7yiw9ZXFEDmTbfEJDxJPzvsckZ12CRRwJE6QgPBwr_dUpSSiyq-o32Mv_emKAfUoRqKELVvjaRdUtHB1BJ-Tw3yrHLc8Kc"/><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md text-on-surface truncate font-medium">Sarah Connor</span><span class="font-label-sm text-label-sm text-outline truncate">sarah@agent3.ai</span></div></div></div><div class="flex items-center justify-between pt-space-xs"><a class="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors" data-path="settings" href="#"><span class="material-symbols-outlined text-[16px]">settings</span><span>Settings</span></a><a class="flex items-center gap-space-xs text-on-surface-variant hover:text-error font-label-sm text-label-sm transition-colors" data-path="login" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Log out</span></a></div></div></aside>
+<!-- Main Wrapper with Left Sidebar offset and Right Sources Drawer margin -->
+<div class="pl-[260px] pr-[340px]">
+<!-- Top Global Header -->
+<header class="fixed top-0 left-[260px] right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.2)] z-40 flex items-center justify-between px-space-xl border-b border-surface-container">
+<div class="flex items-center gap-space-md">
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-on-surface transition-colors">dock_to_left</span>
+<div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container-high border border-surface-container-highest">
+<span class="w-2 h-2 rounded-full bg-rag-indexed animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">RAG System Active</span>
+</div>
+</div>
+<nav class="flex items-center gap-space-lg" data-active-classes="text-on-surface">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="knowledge-bases" href="#">Knowledge Bases</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="models" href="#">Models</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="evaluations" href="#">Evaluations</a>
+</nav>
+<div class="flex items-center gap-space-md">
+<button class="p-space-xs text-outline hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined">search</span></button>
+<button class="p-space-xs text-outline hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined">notifications</span></button>
+<img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV_7fo7U6B69Q4RHEEYg9tc1QTjAelkHWYwIQhTljeLUszjkZloxXEoruNMQn3G1NX6YC3UWmKqfyNcSRCEKy2bBY04WtrMCWdjQrj-zVJPvFPkpPS0BKr-u7ygPs9B3_r18628oPEE7yiw9ZXFEDmTbfEJDxJPzvsckZ12CRRwJE6QgPBwr_dUpSSiyq-o32Mv_emKAfUoRqKELVvjaRdUtHB1BJ-Tw3yrHLc8Kc"/>
+</div>
+</header>
+<!-- Main Body Content -->
+<main class="relative pt-16 w-full bg-surface min-h-screen">
+<div class="flex flex-col w-full">
+<div class="relative w-full flex flex-col min-h-[calc(100vh-4rem)]">
+<!-- Subtle Ambient Backdrop Accent -->
+<div class="absolute top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute bottom-1/3 left-10 w-80 h-80 bg-rag-indexed/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<!-- 1. Top Agent Header Bar (Per Requirements) -->
+<section class="sticky top-16 z-30 w-full bg-surface-container-low/95 backdrop-blur-md px-space-xl py-space-sm flex flex-wrap items-center justify-between gap-space-md border-b border-surface-container shadow-sm">
+<!-- Left: Agent Identity & Editable Role Preview -->
+<div class="flex items-center gap-space-lg flex-wrap min-w-0">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-xl bg-primary-container/20 flex items-center justify-center text-primary font-headline-sm shadow-sm flex-shrink-0">
+<span class="material-symbols-outlined text-[20px] text-primary" style="font-variation-settings: 'FILL' 1;">gavel</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Legal Doc Analyst</h1>
+<span class="flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-surface-container-high text-label-sm font-label-sm text-on-surface-variant flex-shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-model-gpt4o animate-pulse"></span>
+<span>Online</span>
+</span>
+</div>
+<!-- Editable Role Preview -->
+<div class="group flex items-center gap-1.5 cursor-pointer text-outline hover:text-on-surface-variant transition-colors min-w-0" title="Click to edit system role prompt">
+<span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0">psychology</span>
+<span class="font-label-sm text-label-sm truncate max-w-[290px] lg:max-w-[340px]">Role: Senior Commercial Contracts Attorney specializing in SaaS MSAs and IP indemnity...</span>
+<button class="p-0.5 hover:text-primary rounded transition-colors flex items-center" title="Edit Role" type="button">
+<span class="material-symbols-outlined text-[13px]">edit</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Vertical Separator -->
+<div class="h-6 w-px bg-surface-container-highest hidden md:block"></div>
+<!-- Model Dropdown with Instant Autosave Notification -->
+<div class="relative flex items-center gap-space-xs">
+<div class="relative group">
+<button class="flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-surface-container text-on-surface font-label-sm text-label-sm transition-all shadow-sm" type="button">
+<span class="w-2 h-2 rounded-full bg-model-gpt4o"></span>
+<span class="font-medium text-model-gpt4o">gpt-4o</span>
+<span class="material-symbols-outlined text-[15px] text-outline">expand_more</span>
+</button>
+<!-- Dropdown Menu -->
+<div class="absolute left-0 top-full mt-1.5 hidden group-hover:flex flex-col w-48 p-1 rounded-xl bg-surface-container-highest border border-surface-variant text-on-surface shadow-xl z-50">
+<div class="px-2 py-1 text-label-sm font-label-sm text-outline uppercase font-semibold">Select Engine</div>
+<button class="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-left text-label-sm hover:bg-surface-container text-on-surface-variant transition-colors" type="button">
+<span>gpt-4.1</span>
+<span class="font-code-inline text-[10px] text-outline">Flagship</span>
+</button>
+<button class="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-left text-label-sm hover:bg-surface-container text-on-surface-variant transition-colors" type="button">
+<span>gpt-4.1-mini</span>
+<span class="font-code-inline text-[10px] text-outline">Fast</span>
+</button>
+<button class="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-left text-label-sm bg-surface-container text-primary font-medium transition-colors" type="button">
+<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-model-gpt4o"></span>gpt-4o</span>
+<span class="material-symbols-outlined text-[14px] text-primary">check</span>
+</button>
+<button class="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-left text-label-sm hover:bg-surface-container text-on-surface-variant transition-colors" type="button">
+<span>gpt-4o-mini</span>
+<span class="font-code-inline text-[10px] text-outline">Eco</span>
+</button>
+</div>
+</div>
+<!-- Instant Autosave Notification Toast -->
+<div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-model-gpt4o/10 border border-model-gpt4o/25 text-model-gpt4o text-[11px] font-medium animate-fadeIn">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+<span>Model switched to gpt-4o • Saved</span>
+</div>
+</div>
+<!-- 'Source' Scope Dropdown -->
+<div class="relative group">
+<button class="flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-surface-container text-on-surface font-label-sm text-label-sm transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[15px] text-rag-indexed">filter_alt</span>
+<span class="text-on-surface font-medium truncate max-w-[140px] sm:max-w-none">All Sources (3 files)</span>
+<span class="material-symbols-outlined text-[15px] text-outline">arrow_drop_down</span>
+</button>
+<!-- Scope options dropdown -->
+<div class="absolute left-0 top-full mt-1.5 hidden group-hover:flex flex-col w-72 p-1.5 rounded-xl bg-surface-container-highest border border-surface-variant text-on-surface shadow-xl z-50">
+<div class="px-2 py-1 text-label-sm font-label-sm text-outline uppercase font-semibold">Scope Context To</div>
+<button class="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-left text-label-sm bg-surface-container text-rag-indexed font-medium transition-colors" type="button">
+<span class="flex items-center gap-2 truncate">
+<span class="material-symbols-outlined text-[15px]">select_all</span>
+<span>All Sources (3 files)</span>
+</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</button>
+<div class="my-1 border-t border-surface-container"></div>
+<button class="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-left text-label-sm hover:bg-surface-container text-on-surface-variant transition-colors truncate" type="button">
+<span class="px-1 py-0.5 rounded text-[9px] bg-red-950/60 text-red-300 font-mono border border-red-500/30">PDF</span>
+<span class="truncate">Master_Services_Agreement_Acme_2024.pdf</span>
+</button>
+<button class="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-left text-label-sm hover:bg-surface-container text-on-surface-variant transition-colors truncate" type="button">
+<span class="px-1 py-0.5 rounded text-[9px] bg-blue-950/60 text-blue-300 font-mono border border-blue-500/30">DOCX</span>
+<span class="truncate">SaaS_Terms_of_Use_Enterprise_v3.docx</span>
+</button>
+<button class="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-left text-label-sm hover:bg-surface-container text-on-surface-variant transition-colors truncate" type="button">
+<span class="px-1 py-0.5 rounded text-[9px] bg-red-950/60 text-red-300 font-mono border border-red-500/30">PDF</span>
+<span class="truncate">Security_Addendum_2024.pdf</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right: Upload button & Toggle Right Panel -->
+<div class="flex items-center gap-space-xs ml-auto">
+<!-- Upload documents button with badge -->
+<button class="flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-surface-container text-on-surface font-label-md text-label-md transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">upload_file</span>
+<span>Upload Documents</span>
+<span class="px-1.5 py-0.5 rounded-full bg-primary-container/30 text-primary text-[10px] font-semibold">3 Docs</span>
+</button>
+<!-- Toggle right drawer button -->
+<button class="flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-primary-container/15 hover:bg-primary-container/25 border border-primary/20 text-primary font-label-md text-label-md transition-all shadow-sm" title="Toggle Knowledge Sources Panel" type="button">
+<span class="material-symbols-outlined text-[18px]">dock_to_right</span>
+<span class="hidden sm:inline">Sources Drawer</span>
+</button>
+</div>
+</section>
+<!-- 2. Chat Area -->
+<div class="flex-1 w-full max-w-4xl mx-auto px-space-md sm:px-space-xl py-space-xl flex flex-col gap-space-2xl">
+<!-- Date divider: Yesterday -->
+<div class="relative flex items-center justify-center my-1">
+<div class="absolute inset-0 flex items-center"><div class="w-full border-t border-surface-container-high"></div></div>
+<span class="relative px-space-md py-0.5 rounded-full bg-surface-container border border-surface-container-highest text-outline font-label-sm text-label-sm uppercase tracking-wider shadow-sm">
+              Yesterday · Aug 14
+            </span>
+</div>
+<!-- Yesterday Turn: User -->
+<div class="flex items-start justify-end gap-space-md pl-12">
+<div class="flex flex-col items-end max-w-2xl">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-label-sm text-outline">You</span>
+<span class="font-code-inline text-code-inline text-outline">Yesterday 4:18 PM</span>
+</div>
+<div class="px-space-lg py-space-md rounded-2xl rounded-tr-none bg-surface-container-highest border border-surface-variant text-on-surface shadow-sm leading-relaxed font-body-lg text-body-lg">
+                Can you summarize the primary insurance limits mandated under the Acme SaaS Master Services Agreement?
+              </div>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-surface-variant flex items-center justify-center flex-shrink-0 text-on-surface font-label-md text-label-md font-semibold mt-6 shadow-sm">
+              SC
+            </div>
+</div>
+<!-- Yesterday Turn: Agent Response -->
+<div class="flex items-start gap-space-md pr-6">
+<div class="w-9 h-9 rounded-xl bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 shadow-md ring-1 ring-primary/30">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">balance</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center gap-space-sm mb-1.5">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Legal Doc Analyst</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-model-gpt4o font-label-sm text-label-sm font-medium">gpt-4o</span>
+<span class="font-code-inline text-code-inline text-outline">Yesterday 4:18:42 PM</span>
+</div>
+<div class="p-space-xl rounded-2xl rounded-tl-none bg-surface-container-low border border-surface-container text-on-surface shadow-md flex flex-col gap-space-md">
+<p class="font-body-lg text-body-lg leading-relaxed">
+                  Under <strong class="text-primary font-semibold">Section 11.2 (Insurance Coverage)</strong>, Acme is required to maintain the following policy thresholds during the Agreement term:
+                </p>
+<ul class="flex flex-col gap-1.5 font-body-md text-body-md text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-model-gpt4o text-[18px] mt-0.5">check_circle</span>
+<span><strong class="text-on-surface">Commercial General Liability:</strong> $2,000,000 per occurrence / $4,000,000 aggregate.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-model-gpt4o text-[18px] mt-0.5">check_circle</span>
+<span><strong class="text-on-surface">Cyber &amp; Privacy Liability:</strong> $5,000,000 aggregate covering unauthorized access and breach notifications.</span>
+</li>
+</ul>
+<!-- Citation Chip -->
+<div class="pt-space-xs flex items-center gap-space-sm flex-wrap border-t border-surface-container">
+<button class="flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest border border-surface-container text-primary font-label-sm text-label-sm transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[14px]">link</span>
+<span>Source: Master_Services_Agreement_Acme_2024.pdf (Page 21, §11.2)</span>
+<span class="text-outline">· 98% Match</span>
+</button>
+<div class="flex items-center gap-1 ml-auto">
+<button class="p-1 rounded text-outline hover:text-on-surface" title="Copy"><span class="material-symbols-outlined text-[16px]">content_copy</span></button>
+<button class="p-1 rounded text-outline hover:text-on-surface" title="Helpful"><span class="material-symbols-outlined text-[16px]">thumb_up</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Date divider: Today -->
+<div class="relative flex items-center justify-center my-2">
+<div class="absolute inset-0 flex items-center"><div class="w-full border-t border-surface-container-high"></div></div>
+<span class="relative px-space-md py-0.5 rounded-full bg-surface-container border border-surface-container-highest text-outline font-label-sm text-label-sm uppercase tracking-wider shadow-sm">
+              Today · Grounded with MSA Corpus v4.1
+            </span>
+</div>
+<!-- Message Pair 1: User -->
+<div class="flex items-start justify-end gap-space-md pl-12">
+<div class="flex flex-col items-end max-w-2xl">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-label-sm text-outline">You</span>
+<span class="font-code-inline text-code-inline text-outline">Today 10:42 AM</span>
+</div>
+<div class="px-space-lg py-space-md rounded-2xl rounded-tr-none bg-surface-container-highest border border-surface-variant text-on-surface shadow-sm leading-relaxed font-body-lg text-body-lg">
+                Can you analyze section 8.2 of the Master Services Agreement from Acme Corp? Does it have uncapped indemnification for IP infringement?
+              </div>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-surface-variant flex items-center justify-center flex-shrink-0 text-on-surface font-label-md text-label-md font-semibold mt-6 shadow-sm">
+              SC
+            </div>
+</div>
+<!-- Message Pair 1: Agent Response -->
+<div class="flex items-start gap-space-md pr-6">
+<div class="w-9 h-9 rounded-xl bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 shadow-md ring-1 ring-primary/30">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">balance</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center gap-space-sm mb-1.5">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Legal Doc Analyst</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-model-gpt4o font-label-sm text-label-sm font-medium">gpt-4o</span>
+<span class="font-code-inline text-code-inline text-outline">10:42:18 AM</span>
+</div>
+<!-- Main Response Card -->
+<div class="p-space-xl rounded-2xl rounded-tl-none bg-surface-container-low border border-surface-container text-on-surface shadow-md flex flex-col gap-space-md">
+<p class="font-body-lg text-body-lg leading-relaxed">
+                  Yes. Under Section 8.2 of the <strong class="text-primary font-semibold">Master Services Agreement (Acme Corp, 2024)</strong>, Acme Corp provides <span class="text-error font-medium">uncapped indemnification</span> specifically for third-party intellectual property infringement claims.
+                </p>
+<!-- Verified Clause Blockquote -->
+<div class="p-space-md rounded-xl bg-surface-container border-l-4 border-rag-indexed flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 text-label-sm font-label-sm text-rag-indexed font-medium uppercase tracking-wide">
+<span class="material-symbols-outlined text-[16px]">menu_book</span>
+                      Verified Contract Extraction
+                    </span>
+<span class="font-code-inline text-code-inline text-outline">Cosine Similarity: 0.941</span>
+</div>
+<blockquote class="font-body-md text-body-md text-on-surface-variant italic pl-2 border-l border-surface-variant">
+                    "8.2 Acme Infringement Indemnity. Acme shall defend, indemnify, and hold harmless Customer and its Officers against any Claim asserting that the Cloud Services infringe, misappropriate, or violate any third-party patent, copyright, trademark, or trade secret..."
+                  </blockquote>
+<div class="flex items-center gap-space-sm mt-1">
+<span class="font-label-sm text-label-sm text-outline">Document Source:</span>
+<span class="font-code-inline text-code-inline text-on-surface">Master_Services_Agreement_Acme_2024.pdf (Page 14, ¶3)</span>
+</div>
+</div>
+<!-- Syntax-Highlighted Code Block / Snippet Extraction -->
+<div class="rounded-xl overflow-hidden border border-border-dark bg-surface-container-lowest shadow-sm">
+<div class="flex items-center justify-between px-3 py-1.5 bg-surface-container-high border-b border-border-dark text-[11px] font-code-inline text-outline">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[13px] text-primary">data_object</span>
+                      clause_ast_extraction.json
+                    </span>
+<span>Normalized Clause Schema</span>
+</div>
+<pre class="p-3 font-code-inline text-code-inline text-on-surface overflow-x-auto leading-relaxed"><span class="text-primary">{</span>
+  <span class="text-secondary">"clause"</span>: <span class="text-model-gpt4o">"8.2_IP_INDEMNIFICATION"</span>,
+  <span class="text-secondary">"cap_status"</span>: <span class="text-error">"UNCAPPED"</span>,
+  <span class="text-secondary">"carve_out_reference"</span>: <span class="text-model-gpt4o">"Section 9.1(b) Excluded Claims"</span>,
+  <span class="text-secondary">"governing_law"</span>: <span class="text-tertiary">"Delaware"</span>
+<span class="text-primary">}</span></pre>
+</div>
+<!-- Analysis Points -->
+<div class="flex flex-col gap-space-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Legal Breakdown &amp; Carve-Out Interaction:</h2>
+<ul class="flex flex-col gap-2 font-body-md text-body-md text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-model-gpt4o text-[18px] mt-0.5">check_circle</span>
+<span><strong class="text-on-surface">Scope of Covered Rights:</strong> Encompasses patents, trademarks, copyrights, and trade secrets without geographic restriction.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-model-gpt4o text-[18px] mt-0.5">check_circle</span>
+<span><strong class="text-on-surface">Carve-Out from General Cap:</strong> Cross-referencing <strong>Section 9.1 (Limitation of Liability)</strong>, indemnity obligations under Section 8 are expressly designated as an <em>Excluded Claim</em>, bypassing the 12-month trailing fees cap.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-rag-syncing text-[18px] mt-0.5">warning</span>
+<span><strong class="text-on-surface">Customer Defense Triggers:</strong> Requires prompt written notification within 15 calendar days; failure to provide notice only impairs obligations to the extent Acme suffered prejudice.</span>
+</li>
+</ul>
+</div>
+<!-- Citation Chip & Action Row -->
+<div class="pt-space-xs flex items-center justify-between gap-space-sm flex-wrap border-t border-surface-container">
+<div class="flex items-center gap-2 flex-wrap">
+<button class="flex items-center gap-1.5 px-space-md py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest border border-surface-container text-primary font-label-sm text-label-sm transition-all shadow-sm group" type="button">
+<span class="material-symbols-outlined text-[14px]">link</span>
+<span>Source: Master_Services_Agreement_Acme_2024.pdf (Page 14, §8.2)</span>
+<span class="px-1.5 py-0.2 rounded bg-rag-indexed/20 text-rag-indexed font-code-inline text-[10px]">99.4% Match</span>
+<span class="material-symbols-outlined text-[13px] text-outline group-hover:translate-x-0.5 transition-transform">open_in_new</span>
+</button>
+<span class="font-label-sm text-label-sm text-outline">Latency: 1.42s · 472 tokens</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Copy response" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Helpful" type="button">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+</button>
+<button class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Retry" type="button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Message Pair 2: User -->
+<div class="flex items-start justify-end gap-space-md pl-12">
+<div class="flex flex-col items-end max-w-2xl">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-label-sm text-outline">You</span>
+<span class="font-code-inline text-code-inline text-outline">Today 10:44 AM</span>
+</div>
+<div class="px-space-lg py-space-md rounded-2xl rounded-tr-none bg-surface-container-highest border border-surface-variant text-on-surface shadow-sm leading-relaxed font-body-lg text-body-lg">
+                What is the liability cap limitation under Delaware law for this clause, and does the security addendum introduce any conflicting super-caps?
+              </div>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-surface-variant flex items-center justify-center flex-shrink-0 text-on-surface font-label-md text-label-md font-semibold mt-6 shadow-sm">
+              SC
+            </div>
+</div>
+<!-- Message Pair 2: In-Progress Streaming Agent Response -->
+<div class="flex items-start gap-space-md pr-6">
+<div class="w-9 h-9 rounded-xl bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 shadow-md ring-1 ring-primary/30">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">balance</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center gap-space-sm mb-1.5">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Legal Doc Analyst</span>
+<span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container-high text-model-gpt4o font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-model-gpt4o animate-ping"></span>
+                  Streaming from gpt-4o...
+                </span>
+<span class="font-code-inline text-code-inline text-outline">Now</span>
+</div>
+<!-- In-Progress Card with Shimmer & Animated Typing Cursor -->
+<div class="p-space-xl rounded-2xl rounded-tl-none bg-surface-container-low border border-primary/20 text-on-surface shadow-lg flex flex-col gap-space-md relative overflow-hidden">
+<!-- Top Shimmer Bar Indicator -->
+<div class="absolute top-0 left-0 right-0 h-1 shimmer-bar"></div>
+<!-- Stream header status -->
+<div class="flex items-center justify-between text-outline text-label-sm font-label-sm pb-1 border-b border-surface-container">
+<span class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[16px] animate-spin">sync</span>
+                    Synthesizing contract cross-references across 3 documents...
+                  </span>
+<span class="font-code-inline">Tokens: 318...</span>
+</div>
+<div class="font-body-lg text-body-lg leading-relaxed text-on-surface">
+                  Under Delaware jurisprudence (expressly governing pursuant to <span class="font-semibold text-primary">Section 12.4</span>), sophisticated commercial parties retain broad latitude to allocate IP risk without statutory maximum ceilings. 
+                  <br/><br/>
+                  Cross-referencing with <span class="font-semibold text-secondary">Security_Addendum_2024.pdf (§4.3 Data Incidents)</span>: the $5,000,000 Data Protection Super-Cap does <strong class="text-on-surface">not</strong> apply to pure intellectual property infringement under Section 8.2. Rather, Section 8.2 remains entirely separate from security breach liabilities.
+                  <!-- Live Typing Cursor Indicator -->
+<span class="inline-block w-2 h-4.5 bg-primary align-middle ml-1 rounded-sm animate-pulse-slow"></span>
+</div>
+<!-- Streaming citation discovery chip preview -->
+<div class="flex items-center gap-space-sm pt-2 border-t border-surface-container">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-outline text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-rag-indexed">search_check</span>
+<span>Cross-referencing Security_Addendum_2024.pdf §4.3...</span>
+</div>
+<div class="ml-auto flex items-center gap-2">
+<button class="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-outline hover:text-error text-label-sm transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">stop_circle</span>
+<span>Stop generating</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Bottom Composer -->
+<div class="sticky bottom-0 z-30 w-full px-space-md sm:px-space-xl pb-space-lg pt-space-sm bg-gradient-to-t from-surface via-surface/95 to-transparent">
+<div class="max-w-4xl mx-auto flex flex-col gap-2">
+<!-- Modern Multiline Composer Card -->
+<div class="flex flex-col rounded-2xl bg-surface-container-low border border-surface-container focus-within:border-primary/40 shadow-xl p-space-md transition-all">
+<!-- Multiline Textarea Input Area -->
+<textarea class="w-full bg-transparent text-on-surface placeholder:text-outline font-body-lg text-body-lg resize-none focus:outline-none min-h-[64px] max-h-48 leading-relaxed" placeholder="Ask about your documents… (Shift + Enter for new line)" rows="2"></textarea>
+<!-- Composer Bottom Accessory Toolbar -->
+<div class="flex items-center justify-between pt-space-sm mt-space-xs border-t border-surface-container/60 flex-wrap gap-space-sm">
+<!-- Left Controls: Attachment & Configurations -->
+<div class="flex items-center gap-space-xs flex-wrap">
+<!-- Attach-file / upload paperclip icon button -->
+<button class="p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-outline hover:text-on-surface transition-colors shadow-sm" title="Upload &amp; attach document" type="button">
+<span class="material-symbols-outlined text-[18px]">attach_file</span>
+</button>
+<!-- Linked Knowledge Pill -->
+<div class="flex items-center gap-1.5 px-space-sm py-1 rounded-lg bg-surface-container font-label-sm text-label-sm text-on-surface-variant shadow-sm border border-surface-container-high">
+<span class="material-symbols-outlined text-[15px] text-rag-indexed">folder_open</span>
+<span>3 docs indexed</span>
+</div>
+<!-- Prompt Preset / Prompt Enhancement Pill -->
+<button class="flex items-center gap-1.5 px-space-sm py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-outline hover:text-on-surface font-label-sm text-label-sm transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[15px]">auto_fix_high</span>
+<span class="hidden sm:inline">Cite clauses</span>
+</button>
+</div>
+<!-- Right Controls: Send Button (Indigo circle with upward arrow) -->
+<div class="flex items-center gap-space-sm ml-auto">
+<button aria-label="Send message" class="w-10 h-10 rounded-full bg-primary-container hover:bg-primary text-on-primary flex items-center justify-center transition-all shadow-md active:scale-95 group" type="button">
+<span class="material-symbols-outlined text-[20px] group-hover:-translate-y-0.5 transition-transform font-bold">arrow_upward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Scope Hint Badge / Bar at bottom -->
+<div class="flex items-center justify-between px-space-xs text-outline font-label-sm text-label-sm flex-wrap gap-1">
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px] text-rag-indexed">check_circle</span>
+<span>Scoped to: <strong class="text-on-surface font-medium">All Sources</strong> (3 documents • 1,420 chunks indexed) • <span class="text-primary font-medium">Strict Grounding Active</span></span>
+</div>
+<span class="hidden md:inline text-outline/80">Press Enter to send</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- 4. Right Panel: Sources Drawer (Visible, Fixed 340px) -->
+<aside class="fixed right-0 top-16 bottom-0 w-[340px] bg-surface-container-low border-l border-surface-container z-40 flex flex-col justify-between shadow-2xl">
+<!-- Drawer Content -->
+<div class="flex flex-col flex-1 overflow-y-auto">
+<!-- Header: Knowledge Sources -->
+<div class="p-space-lg border-b border-surface-container flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">menu_book</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold text-[16px]">Knowledge Sources</h2>
+</div>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">3 files • 14.2 MB total</span>
+</div>
+<!-- + Add Button -->
+<button class="flex items-center gap-1 px-space-sm py-1 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm hover:bg-primary transition-all shadow-sm font-medium" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>Add</span>
+</button>
+</div>
+<!-- Filter / Search in Sources -->
+<div class="px-space-md py-space-sm border-b border-surface-container">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2.5 top-2 text-[16px] text-outline">search</span>
+<input class="w-full bg-surface-container rounded-lg pl-8 pr-3 py-1.5 text-[12px] font-body-sm text-on-surface placeholder:text-outline border border-surface-container-highest focus:outline-none focus:border-primary" placeholder="Search within chunks..." type="text"/>
+</div>
+</div>
+<!-- List of Uploaded Sources -->
+<div class="flex flex-col p-space-md gap-space-sm">
+<!-- Source 1: PDF (Red Badge) -->
+<div class="group relative flex flex-col p-space-md rounded-xl bg-surface-container hover:bg-surface-container-high border border-surface-container-highest transition-all shadow-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<!-- PDF Badge Icon -->
+<div class="w-8 h-8 rounded-lg bg-red-950/60 border border-red-500/30 flex items-center justify-center flex-shrink-0 text-red-400 font-code-inline text-[10px] font-bold">
+              PDF
+            </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-medium truncate group-hover:text-primary transition-colors" title="Master_Services_Agreement_Acme_2024.pdf">
+                Master_Services_Agreement_Acme_2024.pdf
+              </span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">4.2 MB • 342 chunks</span>
+</div>
+</div>
+<!-- Delete / Trash Action (Hover) -->
+<button class="text-outline opacity-0 group-hover:opacity-100 hover:text-error transition-all p-1 rounded" title="Remove file" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+<!-- Status & Vector Info -->
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-surface-container-highest/60 text-[11px]">
+<span class="flex items-center gap-1.5 text-model-gpt4o font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-model-gpt4o"></span>
+            Indexed
+          </span>
+<span class="text-outline font-code-inline">p.1 - p.38</span>
+</div>
+</div>
+<!-- Source 2: DOCX (Blue Badge) -->
+<div class="group relative flex flex-col p-space-md rounded-xl bg-surface-container hover:bg-surface-container-high border border-surface-container-highest transition-all shadow-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<!-- DOCX Badge Icon -->
+<div class="w-8 h-8 rounded-lg bg-blue-950/60 border border-blue-500/30 flex items-center justify-center flex-shrink-0 text-blue-400 font-code-inline text-[10px] font-bold">
+              DOC
+            </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-medium truncate group-hover:text-primary transition-colors" title="SaaS_Terms_of_Use_Enterprise_v3.docx">
+                SaaS_Terms_of_Use_Enterprise_v3.docx
+              </span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">1.8 MB • 120 chunks</span>
+</div>
+</div>
+<!-- Delete / Trash Action (Hover) -->
+<button class="text-outline opacity-0 group-hover:opacity-100 hover:text-error transition-all p-1 rounded" title="Remove file" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+<!-- Status & Vector Info -->
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-surface-container-highest/60 text-[11px]">
+<span class="flex items-center gap-1.5 text-model-gpt4o font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-model-gpt4o"></span>
+            Indexed
+          </span>
+<span class="text-outline font-code-inline">v3.4 Enterprise</span>
+</div>
+</div>
+<!-- Source 3: PDF (Red Badge) -->
+<div class="group relative flex flex-col p-space-md rounded-xl bg-surface-container hover:bg-surface-container-high border border-surface-container-highest transition-all shadow-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<!-- PDF Badge Icon -->
+<div class="w-8 h-8 rounded-lg bg-red-950/60 border border-red-500/30 flex items-center justify-center flex-shrink-0 text-red-400 font-code-inline text-[10px] font-bold">
+              PDF
+            </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-medium truncate group-hover:text-primary transition-colors" title="Security_Addendum_2024.pdf">
+                Security_Addendum_2024.pdf
+              </span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">850 KB • 64 chunks</span>
+</div>
+</div>
+<!-- Delete / Trash Action (Hover) -->
+<button class="text-outline opacity-0 group-hover:opacity-100 hover:text-error transition-all p-1 rounded" title="Remove file" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+<!-- Status & Vector Info -->
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-surface-container-highest/60 text-[11px]">
+<span class="flex items-center gap-1.5 text-model-gpt4o font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-model-gpt4o"></span>
+            Indexed
+          </span>
+<span class="text-outline font-code-inline">SOC2 &amp; ISO Scope</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom: Quick Upload Dropzone Snippet -->
+<div class="p-space-md border-t border-surface-container bg-surface-container-lowest/80">
+<div class="border-2 border-dashed border-surface-container-highest hover:border-primary/50 rounded-xl p-space-md flex flex-col items-center justify-center text-center cursor-pointer transition-colors group">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-outline group-hover:text-primary mb-1.5 transition-colors">
+<span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface font-medium group-hover:text-primary transition-colors">Drop documents here</span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">PDF, DOCX, TXT up to 50MB</span>
+</div>
+</div>
+</aside>
+</body></html>

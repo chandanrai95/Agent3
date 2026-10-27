@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" width="320" height="240">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#27272a"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+    <linearGradient id="robotGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Glow -->
+  <circle cx="160" cy="120" r="110" fill="url(#glow)"/>
+
+  <!-- Orbit / Dash circles -->
+  <circle cx="160" cy="120" r="88" stroke="#3f3f46" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.6"/>
+
+  <!-- Left Floating Doc / File Badge -->
+  <g transform="translate(48, 68)" filter="url(#shadow)">
+    <rect width="64" height="74" rx="10" fill="url(#cardGrad)" stroke="#3f3f46" stroke-width="1"/>
+    <path d="M12 18h24M12 28h40M12 38h32M12 48h20" stroke="#71717a" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="38" y="14" width="16" height="12" rx="4" fill="#6366f1" fill-opacity="0.2"/>
+    <circle cx="46" cy="20" r="3" fill="#818cf8"/>
+  </g>
+
+  <!-- Right Floating Model / Sparkle Badge -->
+  <g transform="translate(212, 105)" filter="url(#shadow)">
+    <rect width="68" height="54" rx="10" fill="url(#cardGrad)" stroke="#3f3f46" stroke-width="1"/>
+    <rect x="10" y="12" width="24" height="6" rx="3" fill="#6366f1"/>
+    <rect x="10" y="24" width="48" height="4" rx="2" fill="#52525b"/>
+    <rect x="10" y="34" width="34" height="4" rx="2" fill="#3f3f46"/>
+    <!-- sparkle star -->
+    <path d="M52 14L53.5 17.5L57 19L53.5 20.5L52 24L50.5 20.5L47 19L50.5 17.5Z" fill="#a5b4fc"/>
+  </g>
+
+  <!-- Floating Chat Bubble -->
+  <g transform="translate(196, 42)" filter="url(#shadow)">
+    <rect width="52" height="34" rx="8" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+    <circle cx="16" cy="17" r="2.5" fill="#a5b4fc"/>
+    <circle cx="26" cy="17" r="2.5" fill="#818cf8"/>
+    <circle cx="36" cy="17" r="2.5" fill="#6366f1"/>
+  </g>
+
+  <!-- Center Friendly Robot Character -->
+  <g transform="translate(116, 70)" filter="url(#shadow)">
+    <!-- Antenna -->
+    <line x1="44" y1="12" x2="44" y2="24" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="44" cy="9" r="4.5" fill="#a5b4fc"/>
+
+    <!-- Head -->
+    <rect x="12" y="24" width="64" height="52" rx="16" fill="url(#cardGrad)" stroke="#6366f1" stroke-width="1.5"/>
+
+    <!-- Face Screen -->
+    <rect x="20" y="32" width="48" height="36" rx="10" fill="#09090b" stroke="#27272a" stroke-width="1"/>
+
+    <!-- Friendly Eyes (Happy Arcs / Dots) -->
+    <path d="M30 48C30 45 34 45 34 48" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M54 48C54 45 58 45 58 48" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Happy Smile -->
+    <path d="M40 56C42 59 46 59 48 56" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Cheeks (Blush) -->
+    <circle cx="27" cy="53" r="2.5" fill="#f43f5e" fill-opacity="0.4"/>
+    <circle cx="61" cy="53" r="2.5" fill="#f43f5e" fill-opacity="0.4"/>
+
+    <!-- Floating Body / Base -->
+    <path d="M26 82C26 78 62 78 62 82L56 94C56 98 32 98 32 94Z" fill="url(#robotGrad)"/>
+    <ellipse cx="44" cy="95" rx="8" ry="3" fill="#a5b4fc" opacity="0.6"/>
+  </g>
+</svg>

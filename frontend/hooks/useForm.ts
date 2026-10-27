@@ -2,7 +2,7 @@
 import React from "react"
 
 
-function useForm<T extends Record<string, any>>(initialValue: T) {
+function useForm<T extends Record<string, unknown>>(initialValue: T) {
 	const [formValues, setFormValues] = React.useState<T>(initialValue || {})
 
 	const onChangeFormValue = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -12,7 +12,7 @@ function useForm<T extends Record<string, any>>(initialValue: T) {
 		}))
 	}
 
-	const onChangeValue = (key: string, value: any) => {
+	const onChangeValue = (key: string, value: unknown) => {
 		setFormValues((prev) => ({
 			...prev,
 			[key]: value

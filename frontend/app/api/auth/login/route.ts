@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       password
     })
 
-    let resp = NextResponse.json(data, { status: 200 })
+    const resp = NextResponse.json(data, { status: 200 })
 
     resp.cookies.set('access_token', data.token, {
       httpOnly: true,

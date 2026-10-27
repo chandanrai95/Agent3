@@ -1,8 +1,13 @@
 'use client'
 import useForm from '@/hooks/useForm'
 import { loginApi } from '@/lib/api/auth'
+import { errorMessage } from '@/lib/api/errors'
 import { useAuthStore } from '@/store/useAuthStore'
-import { redirect, useRouter } from 'next/navigation'
+import Field, { PasswordToggle } from '@/components/auth/field'
+import Spinner from '@/components/ui/spinner'
+import { btnPrimary } from '@/components/ui/styles'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { toast } from 'react-toastify'
 
@@ -11,46 +16,34 @@ type LoginForm = {
   password: string
 }
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function Login() {
   const { setUser } = useAuthStore();
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [isLoggingIn, setIsLoggingIn] = React.useState<boolean>(false);
+  const [submitted, setSubmitted] = React.useState(false);
   const { formValues, onChangeFormValue } = useForm<LoginForm>({ email: '', password: '' });
 
-
-  const onChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChangeFormValue('email', e)
+  const errors = {
+    email: !formValues.email ? 'Email is required' : !EMAIL_PATTERN.test(formValues.email) ? 'Please enter a valid email address' : null,
+    password: !formValues.password ? 'Password is required' : null,
   }
 
-  const onChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChangeFormValue('password', e)
-  }
+  const onLoginPress = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitted(true)
+    if (errors.email || errors.password) return
 
-  const toggleShow = () => {
-    setShowPassword((prev) => !prev)
-  }
-
-  const onLoginPress = async () => {
     try {
       setIsLoggingIn(true);
-      if (!formValues?.email || !formValues?.password) {
-        toast('Email and Password are required fields.', {
-          type: 'error'
-        })
-        return;
-      }
-
       const user = await loginApi(formValues)
-      toast('Log in successful', {
-        type: 'success'
-      })
       setUser(user)
       router.push('/')
     } catch (err) {
       console.error('onLoginPress', err)
-      toast('Something went wrong.',  {
+      toast(errorMessage(err, 'Could not log in.'), {
         type: 'error'
       })
     } finally {
@@ -58,66 +51,48 @@ function Login() {
     }
   }
 
-  const onCreateAccout = () => {
-    redirect('/auth/signup')
-  }
-
   return (
-    <div
-      className="flex flex-1  w-full gap-5 flex-col items-center justify-center"
-    >
-      <div className="flex w-full flex-col">
-        <label>
-          Email
-        </label>
-        <input
-          className="mt-2"
-          value={formValues?.email}
-          placeholder="Enter your email"
-          onChange={onChangeEmail}
+    <div className="flex flex-col">
+      <div className="mb-6">
+        <h1 className="text-headline-lg font-semibold tracking-tight text-on-surface mb-2">Welcome back</h1>
+        <p className="text-body-md text-on-surface-variant">Log in to manage your agents and their knowledge.</p>
+      </div>
+
+      <form className="flex flex-col gap-4" onSubmit={onLoginPress} noValidate>
+        <Field
+          id="email"
+          label="Email"
+          icon="mail"
+          type="email"
+          autoComplete="email"
+          placeholder="you@company.com"
+          value={formValues.email}
+          onChange={(e) => onChangeFormValue('email', e)}
+          error={submitted ? errors.email : null}
         />
-      </div>
+        <Field
+          id="password"
+          label="Password"
+          icon="lock"
+          type={showPassword ? 'text' : 'password'}
+          autoComplete="current-password"
+          placeholder="••••••••••••"
+          value={formValues.password}
+          onChange={(e) => onChangeFormValue('password', e)}
+          error={submitted ? errors.password : null}
+          trailing={<PasswordToggle shown={showPassword} onToggle={() => setShowPassword((p) => !p)} />}
+        />
 
-      <div className="flex w-full flex-col">
-        <label>
-          Password
-        </label>
-
-        <div
-          className='password-input-container w-full mt-2'
-        >
-          <input
-            value={formValues?.password}
-            className="password-input w-full"
-            placeholder="Enter your password"
-            onChange={onChangePassword}
-            type={showPassword ? 'text' : 'password'}
-          />
-          <div
-            className='pl-3 pr-3 text-lg font-semibold cursor-pointer'
-            onClick={toggleShow}
-          >
-            {showPassword ? 'Hide' : 'Show'}
-          </div>
-        </div>
-
-      </div>
-
-      <button
-        className='mt-6'
-        onClick={onLoginPress}
-      >
-        {isLoggingIn ? 'Logging In...' : 'Login'}
-      </button>
-
-      <span className="self-center text-gray-800 mb-3 mt-2 text-center">
-        Don't have an account? <button
-          className="secondary-button rounded-sm text-blue-500 "
-          onClick={onCreateAccout}
-        >
-          Create Account
+        <button type="submit" className={`${btnPrimary} w-full mt-2 py-3 text-[16px]`} disabled={isLoggingIn}>
+          {isLoggingIn && <Spinner />}
+          {isLoggingIn ? 'Signing in...' : 'Log in'}
         </button>
-      </span>
+      </form>
+
+      <div className="mt-6 pt-4 border-t border-border-dark/60 text-center text-body-sm text-on-surface-variant">
+        Don&apos;t have an account?
+        <Link href="/auth/signup" className="text-primary hover:underline text-label-md font-medium ml-1">Sign up</Link>
+      </div>
     </div>
   )
 }
