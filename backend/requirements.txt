@@ -27,3 +27,4 @@ tiktoken
 pymupdf # pdf text, tables, images
 python-docx
 openpyxl
+cryptography # encrypts user API keys

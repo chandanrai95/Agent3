@@ -27,7 +27,7 @@ const AgentPage = () => {
   // the open conversation lives in the URL, no ?thread means a new chat
   const threadParam = useSearchParams().get('thread')
   const { user } = useAuthStore()
-  const { openModal, documents: allDocuments, documentsLoading, refreshDocuments, refreshThreads } = useAppStore()
+  const { openModal, documents: allDocuments, documentsLoading, refreshDocuments, refreshThreads, refreshSettings } = useAppStore()
   const documents = allDocuments[id] || EMPTY_DOCS
   const enqueueUploads = useUploadStore((s) => s.enqueue)
 
@@ -160,8 +160,9 @@ const AgentPage = () => {
       if (controller.signal.aborted) {
         updateLast((m) => ({ streaming: false, error: m.content ? undefined : 'Stopped before an answer was written.' }))
       } else {
-        console.error('send', err)
-        updateLast(() => ({ streaming: false, error: errorMessage(err, 'The agent could not answer. Please try again.') }))
+        const quotaExceeded = (err as { status?: number })?.status === 429
+        if (!quotaExceeded) console.error('send', err)
+        updateLast(() => ({ streaming: false, quotaExceeded, error: errorMessage(err, 'The agent could not answer. Please try again.') }))
       }
     } finally {
       updateLast(() => ({ streaming: false }))
@@ -169,6 +170,7 @@ const AgentPage = () => {
       abortRef.current = null
       // most recently used conversation moves to the top of the sidebar
       refreshThreads(id)
+      refreshSettings()
     }
   }
 

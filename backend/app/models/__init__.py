@@ -5,3 +5,4 @@ import app.models.agent_history as agent_history_schema
 import app.models.sources as sources_schema
 import app.models.thread as thread_schema
 import app.models.api_key as api_key_schema
+import app.models.settings as settings_schema

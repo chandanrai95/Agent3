@@ -7,14 +7,16 @@ from bson import ObjectId
 from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_mongodb import MongoDBAtlasVectorSearch
 from pymongo.errors import OperationFailure
 
 import app.config.database as database
 from app.config.database import SHARED_THREAD
-from app.config.llm import get_llm
-from app.config.setting import EMBEDDINGS_COLLECTION, VECTOR_INDEX_NAME, TEXT_INDEX_NAME, EMBEDDING_MODEL, \
+from app.config.llm import get_llm, get_embeddings
+from app.config.setting import MONGO_DB, EMBEDDINGS_COLLECTION, VECTOR_INDEX_NAME, TEXT_INDEX_NAME, EMBEDDING_MODEL, \
     UTILITY_MODEL
 from app.helper.DocumentParser import parse_file, describe_images, chunk_segments
+from app.helper.credentials import LLMCredentials, UsageMeter, count_tokens, resolve_credentials
 
 NOT_FOUND_ANSWER = "I cannot find this in the provided documents."
 
@@ -105,11 +107,23 @@ def _transcript(messages: list) -> str:
 
 
 class RagPipeline:
-    def __init__(self, agent: dict):
+    def __init__(self, agent: dict, credentials: Optional[LLMCredentials] = None):
         self.agent = agent
         self.agent_id = ObjectId(agent["_id"])
         self.db = database.db
-        self.vector_store = database.getVectorStoreDb()
+        # every model call runs on the agent owner's key when they set one, else the platform key
+        self.credentials = credentials or LLMCredentials(user_id=ObjectId(agent["user_id"]))
+        self.api_key = self.credentials.api_key
+        self.usage = UsageMeter(self.credentials)
+        self.vector_store = MongoDBAtlasVectorSearch(
+            collection=database.get_pymongo_client()[MONGO_DB][EMBEDDINGS_COLLECTION],
+            embedding=get_embeddings(self.api_key),
+            index_name=VECTOR_INDEX_NAME,
+        )
+
+    @classmethod
+    async def for_agent(cls, agent: dict) -> "RagPipeline":
+        return cls(agent, await resolve_credentials(database.db, agent["user_id"]))
 
     # -----------------------------
     # INGESTION
@@ -119,7 +133,8 @@ class RagPipeline:
         # text and tables are parsed locally (blocking, so off the event loop),
         # images and scanned pages are turned into text by the vision model
         parsed = await asyncio.to_thread(parse_file, file_path)
-        image_segments, failed_images = await describe_images(parsed.images)
+        image_segments, failed_images = await describe_images(
+            parsed.images, self.api_key, lambda response: self.usage.record_response("vision", response))
         chunks = await asyncio.to_thread(chunk_segments, parsed.segments + image_segments, source_name)
         if not chunks:
             if failed_images:
@@ -168,10 +183,13 @@ class RagPipeline:
 
         try:
             await self.vector_store.aadd_documents(chunks)
+            self.usage.record("embeddings", count_tokens([c.page_content for c in chunks]))
         except Exception:
             await self.delete_source_chunks(source_id)
             await self.db.sources.delete_one({"_id": source_id})
             raise
+        finally:
+            await self.usage.save(self.db)
 
         await self.db.sources.update_one(
             {"_id": source_id},
@@ -196,6 +214,7 @@ class RagPipeline:
 
     async def _vector_search(self, query: str, _filter: dict) -> list[dict]:
         vector = await self.vector_store.embeddings.aembed_query(query)
+        self.usage.record("embeddings", count_tokens([query]))
         pipeline = [
             {"$vectorSearch": {
                 "index": VECTOR_INDEX_NAME,
@@ -349,14 +368,25 @@ class RagPipeline:
             return
 
         messages = [self._to_message(m["role"], m["content"]) for m in older]
-        response = await get_llm(UTILITY_MODEL, 0, streaming=False).ainvoke(SUMMARY_PROMPT.format(
+        response = await get_llm(UTILITY_MODEL, 0, streaming=False, api_key=self.api_key).ainvoke(SUMMARY_PROMPT.format(
             summary=thread.get("summary") or "(empty)",
             messages=_transcript(messages),
         ))
+        self.usage.record_response("summary", response)
+        await self.usage.save(self.db)
         await self.db.threads.update_one(
             {"_id": thread["_id"]},
             {"$set": {"summary": response.content.strip(), "summary_until": older[-1]["created_at"]}}
         )
+
+    def finish_usage(self, prompt_parts: list[str]):
+        """Saves this request's token usage, even when the client disconnected mid-answer.
+        A stopped stream never receives OpenAI's usage chunk, so its tokens are estimated."""
+        if "chat" not in self.usage.tokens:
+            self.usage.record("chat", count_tokens([p for p in prompt_parts if p]))
+        task = asyncio.create_task(self.usage.save(self.db))
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
 
     def schedule_summary(self, thread_id: str):
         async def run():
@@ -374,11 +404,12 @@ class RagPipeline:
         if not history and not summary:
             return question
         try:
-            response = await get_llm(UTILITY_MODEL, 0, streaming=False).ainvoke(REWRITE_PROMPT.format(
+            response = await get_llm(UTILITY_MODEL, 0, streaming=False, api_key=self.api_key).ainvoke(REWRITE_PROMPT.format(
                 summary=summary or "(none)",
                 history=_transcript(history[-6:]),
                 question=question,
             ))
+            self.usage.record_response("rewrite", response)
             return response.content.strip() or question
         except Exception as e:
             print(f"WARNING: query rewrite failed, using the original question: {e}")
@@ -394,7 +425,7 @@ class RagPipeline:
             ("human", QUESTION_PROMPT),
         ])
         # temperature 0: grounded answers, no creative filling of gaps
-        return prompt | get_llm(self.agent.get("model") or "gpt-4.1-mini", 0)
+        return prompt | get_llm(self.agent.get("model") or "gpt-4.1-mini", 0, api_key=self.api_key)
 
     async def stream_answer(self, question: str, history: list, context: str,
                             summary: Optional[str] = None) -> AsyncIterator[str]:
@@ -406,6 +437,8 @@ class RagPipeline:
             "documents": context,
             "question": question,
         }):
+            # with stream_usage the last chunk carries the token counts
+            self.usage.record_response("chat", chunk)
             if chunk.content:
                 yield chunk.content
 
@@ -444,9 +477,12 @@ class RagPipeline:
         await self.save_thread_message(thread_id, "user", question, search_query=search_query)
 
         answer = ""
-        async for token in self.stream_answer(question, history, context, summary):
-            answer += token
-            yield {"type": "token", "content": token}
+        try:
+            async for token in self.stream_answer(question, history, context, summary):
+                answer += token
+                yield {"type": "token", "content": token}
+        finally:
+            self.finish_usage([context, question, answer])
 
         message = await self.save_thread_message(thread_id, "assistant", answer, sources)
         self.schedule_summary(thread_id)

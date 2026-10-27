@@ -4,7 +4,7 @@ import csv
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import pymupdf as fitz
 from docx import Document as DocxDocument
@@ -392,12 +392,14 @@ def parse_file(file_path: Path) -> ParsedDocument:
 # -----------------------------
 # VISION (images, scanned pages)
 # -----------------------------
-async def describe_images(jobs: list[ImageJob]) -> tuple[list[Document], int]:
-    """Turns images into searchable markdown. Returns (segments, failed_count)."""
+async def describe_images(jobs: list[ImageJob], api_key: Optional[str] = None,
+                          on_usage: Optional[Callable] = None) -> tuple[list[Document], int]:
+    """Turns images into searchable markdown. Returns (segments, failed_count).
+    on_usage(message) is called with every model response, for token accounting."""
     if not jobs:
         return [], 0
 
-    llm = ChatOpenAI(model=VISION_MODEL, temperature=0)
+    llm = ChatOpenAI(model=VISION_MODEL, temperature=0, **({"api_key": api_key} if api_key else {}))
     semaphore = asyncio.Semaphore(VISION_CONCURRENCY)
 
     async def describe(job: ImageJob) -> Optional[Document]:
@@ -408,6 +410,8 @@ async def describe_images(jobs: list[ImageJob]) -> tuple[list[Document], int]:
                 {"type": "text", "text": prompt},
                 {"type": "image_url", "image_url": {"url": image_url}},
             ])])
+        if on_usage:
+            on_usage(response)
         content = (response.content or "").strip()
         if not content or content == NO_CONTENT:
             return None

@@ -10,10 +10,10 @@ from app.helper.RagPipeline import RagPipeline
 class ChatAgent:
     """Dashboard chat, streams plain text with a trailing 'Sources:' block (format used by the frontend)."""
 
-    def __init__(self, agent: dict):
-        self.agent = agent
+    def __init__(self, rag: RagPipeline):
+        self.agent = rag.agent
         self.db = database.db
-        self.rag = RagPipeline(agent)
+        self.rag = rag
 
     @staticmethod
     def format_sources(sources: list[dict]) -> str:
@@ -37,9 +37,12 @@ class ChatAgent:
         _, context, sources = await self.rag.prepare(question, history, source_ids=source_ids)
 
         answer = ""
-        async for token in self.rag.stream_answer(question, history, context):
-            answer += token
-            yield token
+        try:
+            async for token in self.rag.stream_answer(question, history, context):
+                answer += token
+                yield token
+        finally:
+            self.rag.finish_usage([context, question, answer])
 
         sources_text = self.format_sources(sources)
         yield sources_text

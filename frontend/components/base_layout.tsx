@@ -14,7 +14,7 @@ const BaseLayout = ({
 }: { user: User, children: React.ReactNode }) => {
   const pathname = usePathname();
   const { setUser, isLoggedIn } = useAuthStore();
-  const { setAgents } = useAppStore();
+  const { setAgents, refreshSettings } = useAppStore();
 
   React.useEffect(() => {
     if (!isLoggedIn) return;
@@ -29,13 +29,14 @@ const BaseLayout = ({
       }
     }
     fetchAgents()
+    refreshSettings()
 
     addEventListener('agents_updated', fetchAgents)
 
     return () => {
       removeEventListener('agents_updated', fetchAgents)
     }
-  }, [isLoggedIn, setAgents])
+  }, [isLoggedIn, setAgents, refreshSettings])
 
   React.useEffect(() => {
     setUser(user)

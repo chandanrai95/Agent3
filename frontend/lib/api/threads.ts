@@ -48,7 +48,7 @@ export const streamThreadMessage = async ({ agentId, threadId, message, sourceId
   })
   if (!response.ok || !response.body) {
     const data = await response.json().catch(() => null)
-    throw data || new Error('Something went wrong.')
+    throw { status: response.status, ...(data || { detail: 'Something went wrong.' }) }
   }
 
   const reader = response.body.getReader()

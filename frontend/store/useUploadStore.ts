@@ -51,6 +51,7 @@ export const useUploadStore = create<UploadStore>((set, get) => {
           })
           patch(upload.id, { status: 'done', result })
           useAppStore.getState().refreshDocuments(upload.agentId)
+          useAppStore.getState().refreshSettings()
           setTimeout(() => get().dismiss(upload.id), DONE_VISIBLE_MS)
         } catch (err) {
           if (controller.signal.aborted) get().dismiss(upload.id)

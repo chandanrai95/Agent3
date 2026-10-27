@@ -3,15 +3,19 @@ from typing import Optional
 from bson import ObjectId
 from fastapi import HTTPException, status, UploadFile
 
+import app.config.database as database
 from app.helper.RagPipeline import RagPipeline
+from app.helper.credentials import ensure_quota
 from app.helper.source import get_sources
 from app.helper.upload import upload_document
 
 
 async def ingest_upload(agent: dict, file: UploadFile, thread_id: Optional[str] = None):
+    rag = await RagPipeline.for_agent(agent)
+    await ensure_quota(database.db, rag.credentials)
     file_path = await upload_document(file)
     try:
-        return await RagPipeline(agent).ingest(file_path, file.filename, thread_id, file_path.stat().st_size)
+        return await rag.ingest(file_path, file.filename, thread_id, file_path.stat().st_size)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e))
     finally:

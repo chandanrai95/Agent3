@@ -1,5 +1,6 @@
 'use client'
 import React from "react"
+import Link from "next/link"
 import { toast } from "react-toastify"
 import { formatTime, initials } from "@/lib/utils/format"
 import { getModel } from "@/lib/utils/model"
@@ -68,9 +69,14 @@ export const AssistantMessage = ({ message, agent }: AssistantProps) => {
           )}
 
           {message.error && (
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-error-container/30 text-error text-body-sm">
-              <Icon name="error" className="text-[18px]" />
-              {message.error}
+            <div className="flex items-start gap-2 p-2.5 rounded-lg bg-error-container/30 text-error text-body-sm flex-wrap">
+              <Icon name={message.quotaExceeded ? 'bolt' : 'error'} className="text-[18px]" />
+              <span className="flex-1 min-w-[12rem]">{message.error}</span>
+              {message.quotaExceeded && (
+                <Link href="/settings" className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary-container text-on-primary text-label-md font-medium hover:bg-primary transition-colors">
+                  <Icon name="key" className="text-[16px]" />Add API key
+                </Link>
+              )}
             </div>
           )}
 

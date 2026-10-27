@@ -8,6 +8,7 @@ import app.config.database as database
 from app.controller import threads as threads_controller
 from app.controller import documents as documents_controller
 from app.helper.RagPipeline import RagPipeline
+from app.helper.credentials import ensure_quota
 from app.models import thread_schema, sources_schema
 
 
@@ -97,7 +98,9 @@ def build_thread_router(get_agent: Callable) -> APIRouter:
     )
     async def send_message(thread_id: str, payload: thread_schema.ChatRequest, agent=Depends(get_agent)):
         thread = await threads_controller.get_thread(database.db, agent, thread_id)
-        events = RagPipeline(agent).chat_thread(str(thread["_id"]), payload.message, payload.source_ids)
+        rag = await RagPipeline.for_agent(agent)
+        await ensure_quota(database.db, rag.credentials)
+        events = rag.chat_thread(str(thread["_id"]), payload.message, payload.source_ids)
 
         if payload.stream:
             async def event_stream():

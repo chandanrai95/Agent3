@@ -7,6 +7,7 @@ from app.api.agent_history import router as agent_history_router
 from app.api.sources import router as sources_router
 from app.api.api_keys import router as api_keys_router
 from app.api.public import router as public_router
+from app.api.settings import router as settings_router
 from app.api.threads import build_thread_router
 from app.helper.agent_access import get_owned_agent
 
@@ -19,5 +20,6 @@ def setup_router(app: FastAPI):
     app.include_router(prefix='/api/agents/{agent_id}', router=build_thread_router(get_owned_agent), tags=['threads'])
     app.include_router(prefix='/api/agents_history', router=agent_history_router, tags=['agents_history'])
     app.include_router(prefix='/api/sources', router=sources_router, tags=["sources"])
+    app.include_router(prefix='/api/settings', router=settings_router, tags=["settings"])
     # public API, authenticated with an agent API key instead of a user JWT
     app.include_router(prefix='/v1', router=public_router, tags=["public"])

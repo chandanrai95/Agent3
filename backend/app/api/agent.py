@@ -9,6 +9,8 @@ from app.controller.documents import ingest_upload
 from app.controller.threads import get_thread
 from app.helper.agent_access import get_owned_agent
 from app.helper.ChatAgent import ChatAgent
+from app.helper.RagPipeline import RagPipeline
+from app.helper.credentials import ensure_quota
 
 router = APIRouter()
 
@@ -58,7 +60,9 @@ async def user_chat_stream(request: Request, message_req: agent_schema.AgentStre
     if message_req.source and not ObjectId.is_valid(message_req.source):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid source id.")
 
-    chat = ChatAgent(agent)
+    rag = await RagPipeline.for_agent(agent)
+    await ensure_quota(database.db, rag.credentials)
+    chat = ChatAgent(rag)
     return StreamingResponse(
         chat.stream_chat(message_req.message, message_req.source, user["_id"], message_req.thread_id),
         media_type="text/plain",

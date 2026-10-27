@@ -143,6 +143,8 @@ async def ensure_indexes():
     await db.messages.create_index([("thread_id", 1), ("created_at", 1)])
     await db.sources.create_index([("agent_id", 1), ("thread_id", 1)])
     await db.api_keys.create_index("key_hash", unique=True)
+    await db.user_settings.create_index("user_id", unique=True)
+    await db.usage.create_index([("user_id", 1), ("period", 1)], unique=True)
 
     try:
         await asyncio.to_thread(_ensure_vector_index)

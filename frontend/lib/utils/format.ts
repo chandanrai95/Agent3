@@ -44,3 +44,6 @@ export const timeAgo = (date: string | Date) => {
   if (seconds < 86400 * 7) return `${Math.floor(seconds / 86400)}d`
   return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short' }).format(parseDate(date))
 }
+
+export const formatTokens = (n: number) =>
+  n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n / 1000).toFixed(n >= 10_000 ? 0 : 1)}k` : String(n)

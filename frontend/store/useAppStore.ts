@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getAgentDocuments } from "@/lib/api/documents";
 import { getThreads } from "@/lib/api/threads";
+import { getSettings } from "@/lib/api/settings";
 
 export type AgentTemplate = { name: string, model: string, role: string }
 
@@ -27,6 +28,11 @@ interface AppStore {
   threads: Record<string, Thread[]>,
   threadsLoading: Record<string, boolean>,
   refreshThreads: (agentId: string) => Promise<void>
+
+  // OpenAI key status and token usage, drives the usage meter
+  settings: UserSettings | null,
+  setSettings: (settings: UserSettings) => void
+  refreshSettings: () => Promise<void>
 
   sidebarOpen: boolean,
   setSidebarOpen: (open: boolean) => void
@@ -71,6 +77,16 @@ export const useAppStore = create<AppStore>((set) => ({
       console.error('refreshThreads', err)
     } finally {
       set((s) => ({ threadsLoading: { ...s.threadsLoading, [agentId]: false } }))
+    }
+  },
+
+  settings: null,
+  setSettings: (settings) => set({ settings }),
+  refreshSettings: async () => {
+    try {
+      set({ settings: await getSettings() })
+    } catch (err) {
+      console.error('refreshSettings', err)
     }
   },
 

@@ -10,11 +10,12 @@ import { initials } from "@/lib/utils/format"
 import Icon from "../ui/icon"
 import Logo from "../ui/logo"
 import Spinner from "../ui/spinner"
+import UsageMeter from "../settings/usage-meter"
 
 const TILE_COLORS = ['text-primary', 'text-secondary', 'text-tertiary', 'text-rag-indexed', 'text-success']
 
 const Sidebar = () => {
-  const { agents, agentsLoaded, openModal, sidebarOpen, setSidebarOpen } = useAppStore()
+  const { agents, agentsLoaded, openModal, sidebarOpen, setSidebarOpen, settings } = useAppStore()
   const { user, logout } = useAuthStore()
   const { id } = useParams<{ id?: string }>()
   const router = useRouter()
@@ -90,7 +91,13 @@ const Sidebar = () => {
           </nav>
         </div>
 
-        <div className="p-3 bg-surface-container-lowest m-2 rounded-xl flex items-center justify-between gap-2">
+        <div className="p-3 bg-surface-container-lowest m-2 rounded-xl flex flex-col gap-3">
+          {settings?.usage.limit != null && (
+            <Link href="/settings" onClick={() => setSidebarOpen(false)} title="Add your OpenAI key to remove the limit" className="block">
+              <UsageMeter usage={settings.usage} compact />
+            </Link>
+          )}
+          <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-primary-container to-tertiary-container flex items-center justify-center text-label-md font-semibold text-surface-dark">
               {initials(user?.name)}
@@ -100,6 +107,16 @@ const Sidebar = () => {
               <span className="text-label-sm text-outline truncate">{user?.email}</span>
             </div>
           </div>
+          <div className="flex items-center shrink-0">
+          <Link
+            href="/settings"
+            title="Settings"
+            aria-label="Settings"
+            onClick={() => setSidebarOpen(false)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+          >
+            <Icon name="settings" className="text-[18px]" />
+          </Link>
           <button
             type="button"
             title="Log out"
@@ -110,6 +127,8 @@ const Sidebar = () => {
           >
             {loggingOut ? <Spinner /> : <Icon name="logout" className="text-[18px]" />}
           </button>
+          </div>
+          </div>
         </div>
       </aside>
     </>

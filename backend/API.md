@@ -114,3 +114,18 @@ If your cluster tier doesn't allow managing search indexes from the driver, add 
   "source_id": {"type": "objectId"}, "thread_id": {"type": "token"}
 }}}
 ```
+
+## OpenAI keys and token limits
+
+Each user can save their own OpenAI key (`PUT /api/settings/openai_key`, verified with OpenAI, stored encrypted).
+All model calls for that user's agents (answers, query rewriting, summaries, image reading, embeddings), including
+calls through the public `/v1` API, then run on their key without limits.
+
+Users without a key use the server's `OPENAI_API_KEY` and get `FREE_TOKEN_LIMIT` tokens per calendar month (UTC,
+default 100,000). When it's used up, chat and uploads return `429` with a message pointing to Settings.
+`GET /api/settings` returns the key status and this month's usage.
+
+| Env var | Purpose |
+|---|---|
+| `FREE_TOKEN_LIMIT` | monthly tokens per user on the platform key |
+| `SECRETS_ENCRYPTION_KEY` | encrypts stored user keys; changing it makes saved keys unreadable (users re-enter them). Falls back to `JWT_SECRET_KEY` |

@@ -28,4 +28,6 @@ interface ChatMessage {
   // client-only
   streaming?: boolean
   error?: string
+  // free token limit reached, show a link to settings
+  quotaExceeded?: boolean
 }
