@@ -119,6 +119,9 @@ def _text_blocks(page: fitz.Page, clip=None, hidden: bool = False) -> list[tuple
                 # alpha 0 = invisible text, usually an OCR layer drawn over the page
                 if (span.get("alpha", 255) == 0) != hidden or not span["text"].strip():
                     continue
+                # symbol fonts draw bullets/icons with letter codes, read as text they become stray "I" or "l"
+                if _SYMBOL_FONT.search(span["font"]):
+                    continue
                 x, y = span["bbox"][:2]
                 if any(t == span["text"] and abs(x - kx) < 3 and abs(y - ky) < 3 for t, kx, ky in kept):
                     continue
@@ -220,14 +223,22 @@ def _running_key(text: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"\d+", "", text)).strip().lower()
 
 
-def _drop_running_blocks(page_blocks: list[list]) -> list[list]:
-    """Removes page numbers and headers/footers repeated on many pages, they pollute every chunk."""
+_SYMBOL_FONT = re.compile(r"dingbat|wingding|webding", re.IGNORECASE)
+
+
+def _drop_running_blocks(page_blocks: list[list], page_numbers: list[int]) -> list[list]:
+    """Removes page numbers and headers/footers repeated on many pages, they pollute every chunk.
+    page_blocks can hold several text runs per page, page_numbers says which page each belongs to."""
+    keys_per_page: dict = {}
+    for blocks, page_no in zip(page_blocks, page_numbers):
+        keys_per_page.setdefault(page_no, set()).update(_running_key(t) for _, t, _ in blocks if len(t) < 120)
     counts: dict = {}
-    for blocks in page_blocks:
-        for key in {_running_key(t) for _, t, _ in blocks if len(t) < 120}:
+    for keys in keys_per_page.values():
+        for key in keys:
             counts[key] = counts.get(key, 0) + 1
-    threshold = max(3, len(page_blocks) * 0.5)
-    running = {k for k, c in counts.items() if c >= threshold} if len(page_blocks) >= 3 else set()
+    page_count = len(keys_per_page)
+    threshold = max(3, page_count * 0.5)
+    running = {k for k, c in counts.items() if c >= threshold} if page_count >= 3 else set()
     return [
         [b for b in blocks if _running_key(b[1]) not in running and not _PAGE_NUMBER.match(b[1].strip())]
         for blocks in page_blocks
@@ -237,7 +248,7 @@ def _drop_running_blocks(page_blocks: list[list]) -> list[list]:
 def parse_pdf(file_path: Path) -> ParsedDocument:
     parsed = ParsedDocument()
     seen_xrefs = set()
-    # (segment, blocks) filled in after all pages are read, heading levels need the whole document
+    # (segment, blocks, page) filled in after all pages are read, heading levels need the whole document
     text_pages = []
 
     with fitz.open(file_path) as doc:
@@ -266,18 +277,31 @@ def parse_pdf(file_path: Path) -> ParsedDocument:
             table_rows = [rows for rows in table_rows if max((len(r) for r in rows), default=0) > 1]
             table_rects = [fitz.Rect(t.bbox) for t in tables]
 
-            # text blocks outside tables so table cells aren't indexed twice as broken prose
+            # text runs and tables in reading order, so a table sits under the heading that introduces it;
+            # text inside tables is skipped so cells aren't indexed twice as broken prose
             outside = [b for b in blocks if not any(b[0].intersects(r) for r in table_rects)]
-            if outside:
-                segment = Document(page_content="", metadata={**meta, "content_type": "text"})
-                parsed.segments.append(segment)
-                text_pages.append((segment, outside))
+            items = [(b[0].y0, "text", b) for b in outside] + \
+                    [(rect.y0, "table", (rect, rows)) for rect, rows in zip(table_rects, table_rows)]
+            run = []
 
-            for rect, rows in zip(table_rects, table_rows):
+            def flush_text():
+                if run:
+                    segment = Document(page_content="", metadata={**meta, "content_type": "text"})
+                    parsed.segments.append(segment)
+                    text_pages.append((segment, list(run), page_no))
+                    run.clear()
+
+            for _, kind, item in sorted(items, key=lambda i: i[0]):
+                if kind == "text":
+                    run.append(item)
+                    continue
+                flush_text()
+                rect, rows = item
                 markdown = rows_to_markdown(rows)
                 if markdown:
                     parsed.segments.append(Document(page_content=markdown, metadata={
                         **meta, "content_type": "table", "caption": _table_caption(blocks, rect)}))
+            flush_text()
 
             for img in page.get_images(full=True):
                 xref = img[0]
@@ -291,9 +315,9 @@ def parse_pdf(file_path: Path) -> ParsedDocument:
                 if png:
                     parsed.add_image(ImageJob(png, "image/png", "image", meta))
 
-        page_blocks = _drop_running_blocks([blocks for _, blocks in text_pages])
+        page_blocks = _drop_running_blocks([blocks for _, blocks, _ in text_pages], [p for _, _, p in text_pages])
         levels = _heading_levels(page_blocks)
-        for p, ((segment, _), blocks) in enumerate(zip(text_pages, page_blocks)):
+        for p, ((segment, _, _), blocks) in enumerate(zip(text_pages, page_blocks)):
             segment.page_content = "\n".join(
                 ("#" * levels[(p, b)] + " " + text.replace("\n", " ") if (p, b) in levels else text)
                 for b, (_, text, _) in enumerate(blocks)
