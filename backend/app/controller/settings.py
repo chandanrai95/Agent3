@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from openai import AsyncOpenAI, AuthenticationError, OpenAIError
 
 from app.config.setting import FREE_TOKEN_LIMIT
-from app.helper.credentials import encrypt_secret, get_usage, current_period, period_reset_at, resolve_credentials
+from app.helper.credentials import encrypt_secret, get_usage, resolve_credentials
 
 
 async def get_settings(db, user_id) -> dict:
@@ -16,13 +16,7 @@ async def get_settings(db, user_id) -> dict:
         "has_openai_key": credentials.own_key,
         "openai_key_hint": settings.get("openai_key_hint") if credentials.own_key else None,
         "openai_key_updated_at": settings.get("openai_key_updated_at"),
-        "usage": {
-            "period": current_period(),
-            "tokens": usage["tokens"],
-            "by_kind": usage["by_kind"],
-            "limit": None if credentials.own_key else FREE_TOKEN_LIMIT,
-            "resets_at": period_reset_at(),
-        },
+        "usage": {**usage, "limit": None if credentials.own_key else FREE_TOKEN_LIMIT},
     }
 
 

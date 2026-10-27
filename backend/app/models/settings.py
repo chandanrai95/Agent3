@@ -9,12 +9,13 @@ class OpenAIKeyUpdate(BaseModel):
 
 
 class UsageResponse(BaseModel):
-    period: str
+    # all-time totals
     tokens: int
+    # tokens spent on the platform key, counted against the free allowance
+    free_tokens_used: int
     by_kind: dict
-    # None = unlimited (the user pays with their own key)
+    # free allowance, None = unlimited (the user pays with their own key)
     limit: Optional[int]
-    resets_at: datetime
 
 
 class SettingsResponse(BaseModel):

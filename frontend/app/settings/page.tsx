@@ -10,7 +10,7 @@ import UsageMeter from "@/components/settings/usage-meter"
 import { PasswordToggle } from "@/components/auth/field"
 import Icon from "@/components/ui/icon"
 import Spinner from "@/components/ui/spinner"
-import { btnPrimary, btnSecondary, inputBase } from "@/components/ui/styles"
+import { btnPrimary, inputBase } from "@/components/ui/styles"
 
 const KIND_LABELS: Record<string, string> = {
   chat: 'Answers', rewrite: 'Follow-up rewriting', summary: 'Conversation memory', embeddings: 'Embeddings (search & uploads)', vision: 'Images & scanned pages',
@@ -166,24 +166,24 @@ export default function SettingsPage() {
                   <p className="text-body-sm text-on-surface-variant">
                     {usage.limit === null
                       ? 'Billed to your OpenAI account, no limit applies.'
-                      : `Without your own key you can use ${formatTokens(usage.limit)} tokens per month. Resets on ${formatDay(usage.resets_at)}.`}
+                      : `Without your own key you get ${formatTokens(usage.limit)} free tokens in total. The allowance does not reset.`}
                   </p>
                 </div>
-                <span className="font-mono text-headline-sm text-on-surface">{usage.tokens.toLocaleString()}<span className="text-body-sm text-outline"> tokens</span></span>
+                <span className="font-mono text-headline-sm text-on-surface">{usage.tokens.toLocaleString()}<span className="text-body-sm text-outline"> tokens used</span></span>
               </div>
 
               <UsageMeter usage={usage} />
 
-              {usage.limit !== null && usage.tokens >= usage.limit && (
+              {usage.limit !== null && usage.free_tokens_used >= usage.limit && (
                 <div className="flex items-start gap-2 p-3 rounded-xl bg-error-container/30 text-error text-body-sm">
                   <Icon name="warning" className="text-[18px]" />
-                  Your free tokens for this month are used up. Chats and uploads are paused until {formatDay(usage.resets_at)}, or add your own key above.
+                  Your free tokens are used up. Chats, uploads and integrations stay paused until you add your own OpenAI key above.
                 </div>
               )}
 
               {kinds.length > 0 && (
                 <div className="flex flex-col gap-2">
-                  <span className="text-label-sm uppercase tracking-wider text-outline">This month by type</span>
+                  <span className="text-label-sm uppercase tracking-wider text-outline">All-time usage by type</span>
                   {kinds.map(([kind, n]) => (
                     <div key={kind} className="flex items-center justify-between text-body-md">
                       <span className="text-on-surface-variant">{KIND_LABELS[kind] || kind}</span>

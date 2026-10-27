@@ -1,10 +1,11 @@
 interface Usage {
-  period: string
+  // all-time totals
   tokens: number
+  // tokens spent on the platform key, counted against the free allowance
+  free_tokens_used: number
   by_kind: Record<string, number>
-  // null = unlimited, the user pays with their own OpenAI key
+  // free allowance, never resets; null = unlimited, the user pays with their own OpenAI key
   limit: number | null
-  resets_at: string
 }
 
 interface UserSettings {

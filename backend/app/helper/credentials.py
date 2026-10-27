@@ -35,11 +35,6 @@ def current_period(now: Optional[datetime] = None) -> str:
     return (now or datetime.now(timezone.utc)).strftime("%Y-%m")
 
 
-def period_reset_at(now: Optional[datetime] = None) -> datetime:
-    now = now or datetime.now(timezone.utc)
-    return datetime(now.year + (now.month == 12), now.month % 12 + 1, 1, tzinfo=timezone.utc)
-
-
 @dataclass
 class LLMCredentials:
     """Which OpenAI key a user's requests run on. api_key None = the platform key from the environment."""
@@ -59,19 +54,26 @@ async def resolve_credentials(db, user_id) -> LLMCredentials:
 
 
 async def get_usage(db, user_id) -> dict:
-    doc = await db.usage.find_one({"user_id": ObjectId(user_id), "period": current_period()}) or {}
-    return {"tokens": doc.get("tokens", 0), "by_kind": doc.get("by_kind", {})}
+    """All-time usage. Usage is stored per month, the free allowance counts every month together."""
+    totals = {"tokens": 0, "free_tokens_used": 0, "by_kind": {}}
+    async for doc in db.usage.find({"user_id": ObjectId(user_id)}):
+        totals["tokens"] += doc.get("tokens", 0)
+        # only tokens paid with the platform key count towards the free allowance
+        totals["free_tokens_used"] += doc.get("platform_tokens", 0)
+        for kind, count in (doc.get("by_kind") or {}).items():
+            totals["by_kind"][kind] = totals["by_kind"].get(kind, 0) + count
+    return totals
 
 
 async def ensure_quota(db, credentials: LLMCredentials):
-    """Users on the platform key are limited to FREE_TOKEN_LIMIT tokens per month."""
+    """Without their own key a user gets FREE_TOKEN_LIMIT tokens in total, it never resets."""
     if credentials.own_key:
         return
-    used = (await get_usage(db, credentials.user_id))["tokens"]
+    used = (await get_usage(db, credentials.user_id))["free_tokens_used"]
     if used >= FREE_TOKEN_LIMIT:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=(f"You've used your free {FREE_TOKEN_LIMIT:,} tokens for this month. "
+            detail=(f"You've used all {FREE_TOKEN_LIMIT:,} free tokens. "
                     f"Add your own OpenAI API key in Settings to keep going."),
         )
 

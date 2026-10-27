@@ -24,5 +24,5 @@ MAX_IMAGES_PER_DOCUMENT = int(os.getenv('MAX_IMAGES_PER_DOCUMENT') or 40)
 
 # encrypts users' own OpenAI keys at rest, set a stable value in production (falls back to JWT_SECRET_KEY)
 SECRETS_ENCRYPTION_KEY = os.getenv('SECRETS_ENCRYPTION_KEY') or ''
-# monthly tokens a user without their own OpenAI key may spend on the platform key
+# tokens a user without their own OpenAI key may spend on the platform key, in total (never resets)
 FREE_TOKEN_LIMIT = int(os.getenv('FREE_TOKEN_LIMIT') or 100_000)

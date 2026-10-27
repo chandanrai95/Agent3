@@ -121,13 +121,14 @@ Each user can save their own OpenAI key (`PUT /api/settings/openai_key`, verifie
 All model calls for that user's agents (answers, query rewriting, summaries, image reading, embeddings), including
 calls through the public `/v1` API, then run on their key without limits.
 
-Users without a key use the server's `OPENAI_API_KEY` and get `FREE_TOKEN_LIMIT` tokens per calendar month (UTC,
-default 100,000). When it's used up, chat and uploads return `429` with a message pointing to Settings.
-`GET /api/settings` returns the key status and this month's usage.
+Users without a key use the server's `OPENAI_API_KEY` and get `FREE_TOKEN_LIMIT` free tokens in total
+(default 100,000, it never resets). Only tokens spent on the server's key count. When it's used up, chat, uploads,
+the widget and the public API return `429` until the user adds their own key.
+`GET /api/settings` returns the key status and all-time usage (`free_tokens_used`, `tokens`, `by_kind`).
 
 | Env var | Purpose |
 |---|---|
-| `FREE_TOKEN_LIMIT` | monthly tokens per user on the platform key |
+| `FREE_TOKEN_LIMIT` | free tokens per user on the platform key, in total |
 | `SECRETS_ENCRYPTION_KEY` | encrypts stored user keys; changing it makes saved keys unreadable (users re-enter them). Falls back to `JWT_SECRET_KEY` |
 
 ## Using an agent on other platforms
