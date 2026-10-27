@@ -1,5 +1,6 @@
 'use client'
 import React from "react"
+import { createPortal } from "react-dom"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
@@ -26,6 +27,8 @@ const AgentNavItem = ({ agent, active, tileColor }: Props) => {
   const [confirmDelete, setConfirmDelete] = React.useState(false)
   const [deleting, setDeleting] = React.useState(false)
   const menuRef = React.useRef<HTMLDivElement>(null)
+  const menuContentRef = React.useRef<HTMLDivElement>(null)
+  const [menuPosition, setMenuPosition] = React.useState<{ top: number; left: number } | null>(null)
   const model = getModel(agent.model)
 
   // the open agent always shows its conversations
@@ -35,14 +38,35 @@ const AgentNavItem = ({ agent, active, tileColor }: Props) => {
 
   React.useEffect(() => {
     if (!menuOpen) return
+    const updatePosition = () => {
+      const trigger = menuRef.current?.getBoundingClientRect()
+      if (!trigger) return
+
+      const menuHeight = menuContentRef.current?.getBoundingClientRect().height ?? 0
+      const spaceBelow = window.innerHeight - trigger.bottom - 8
+      const top = spaceBelow >= menuHeight + 4
+        ? trigger.bottom + 4
+        : Math.max(8, trigger.top - menuHeight - 4)
+      const width = 176
+      const left = Math.max(8, Math.min(trigger.right - width, window.innerWidth - width - 8))
+      setMenuPosition({ top, left })
+    }
     const onClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      if (!menuRef.current?.contains(target) && !menuContentRef.current?.contains(target)) {
         setMenuOpen(false)
         setConfirmDelete(false)
       }
     }
     document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+    updatePosition()
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
   }, [menuOpen])
 
   const onDelete = async () => {
@@ -101,8 +125,13 @@ const AgentNavItem = ({ agent, active, tileColor }: Props) => {
           >
             <Icon name="more_horiz" className="text-[18px]" />
           </button>
-          {menuOpen && (
-            <div role="menu" className="absolute right-0 top-full mt-1 z-50 w-44 p-1 rounded-xl bg-surface-container-low border border-surface-container-highest shadow-xl flex flex-col">
+          {menuOpen && typeof document !== 'undefined' && createPortal(
+            <div
+              ref={menuContentRef}
+              role="menu"
+              className="fixed z-[9999] w-44 max-h-[calc(100vh-1rem)] overflow-y-auto p-1 rounded-xl bg-surface-container-low border border-surface-container-highest shadow-xl flex flex-col"
+              style={{ top: menuPosition?.top ?? -10000, left: menuPosition?.left ?? -10000 }}
+            >
               <button
                 type="button"
                 role="menuitem"
@@ -131,7 +160,8 @@ const AgentNavItem = ({ agent, active, tileColor }: Props) => {
                 {deleting ? <Spinner className="w-4 h-4" /> : <Icon name="delete" className="text-[16px]" />}
                 {confirmDelete ? 'Click to confirm' : 'Delete agent'}
               </button>
-            </div>
+            </div>,
+            document.body,
           )}
         </div>
       </div>

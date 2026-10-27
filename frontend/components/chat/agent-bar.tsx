@@ -61,9 +61,9 @@ const AgentBar = ({
         <Icon name="api" className="text-[18px]" />
         <span className="hidden sm:inline">Integrate</span>
       </Link>
-      <button type="button" title="New chat" aria-label="New chat" onClick={onNewChat} disabled={!canStartNewChat} className="p-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors shadow-sm flex disabled:opacity-40">
+      {/* <button type="button" title="New chat" aria-label="New chat" onClick={onNewChat} disabled={!canStartNewChat} className="p-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors shadow-sm flex disabled:opacity-40">
         <Icon name="add_comment" className="text-[18px]" />
-      </button>
+      </button> */}
       <button type="button" title={drawerOpen ? 'Hide knowledge sources' : 'Show knowledge sources'} aria-label="Toggle knowledge sources panel" onClick={onToggleDrawer} className={`flex items-center gap-1.5 pl-2 pr-2.5 py-1.5 rounded-lg shadow-sm text-label-md transition-colors ${drawerOpen ? 'bg-primary-container/20 text-primary' : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest'}`}>
         <Icon name="menu_book" className="text-[18px]" />
         <span className="hidden sm:inline">Sources</span>
